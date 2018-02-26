@@ -25,6 +25,7 @@ class PocoConan(ConanFile):
 
     def requirements(self):
         self.requires("zlib/[~=1.2.11]@%s/stable" % self.user)
+        self.requires("pcre/[~=8.41]@%s/testing" % self.user)
         self.requires("openssl/[~=1.1.0g]@%s/testing" % self.user)
 
     def build(self):
@@ -33,22 +34,24 @@ class PocoConan(ConanFile):
         cmake.definitions["CMAKE_INSTALL_PREFIX:STRING"] = self.package_folder.replace("\\", "/")
         cmake.definitions["CMAKE_POSITION_INDEPENDENT_CODE:BOOL"] = "ON"
         #cmake.definitions["BUILD_SHARED_LIBS:BOOL"] = "OFF"
+        cmake.definitions["POCO_STATIC:BOOL"] = "ON"
+        cmake.definitions["DISABLE_CPP14:BOOL"] = "ON"
+        cmake.definitions["POCO_UNBUNDLED:BOOL"] = "ON"
         #
-        cmake.definitions["ENABLE_CPPUNIT:BOOL"] = "OFF"
-        cmake.definitions["ENABLE_ENCODING:BOOL"] = "OFF"
-        cmake.definitions["ENABLE_ENCODING_COMPILER:BOOL"] = "OFF"
         cmake.definitions["ENABLE_XML:BOOL"] = "ON"
         cmake.definitions["ENABLE_JSON:BOOL"] = "ON"
-        cmake.definitions["ENABLE_MONGO:BOOL"] = "OFF"
+        cmake.definitions["ENABLE_MONGODB:BOOL"] = "OFF"
+        cmake.definitions["ENABLE_REDIS:BOOL"] = "OFF"
         cmake.definitions["ENABLE_PDF:BOOL"] = "OFF"
         cmake.definitions["ENABLE_UTIL:BOOL"] = "ON"
         cmake.definitions["ENABLE_NET:BOOL"] = "ON"
-        cmake.definitions["DISABE_INTERNAL_OPENSSL:BOOL"] = "ON"
-        cmake.definitions["ENABLE_SQL:BOOL"] = "OFF"
-        cmake.definitions["ENABLE_SQL_SQLITE:BOOL"] = "OFF"
-        cmake.definitions["ENABLE_SQL_MYSQL:BOOL"] = "OFF"
-        cmake.definitions["ENABLE_SQL_POSTGRESQL:BOOL"] = "OFF"
-        cmake.definitions["ENABLE_SQL_ODBC:BOOL"] = "OFF"
+        cmake.definitions["ENABLE_NETSSL:BOOL"] = "ON"
+        cmake.definitions["ENABLE_NETSSL_WIN:BOOL"] = "OFF"
+        cmake.definitions["ENABLE_CRYPTO:BOOL"] = "ON"
+        cmake.definitions["ENABLE_DATA:BOOL"] = "OFF"
+        cmake.definitions["ENABLE_DATA_SQLITE:BOOL"] = "OFF"
+        cmake.definitions["ENABLE_DATA_MYSQL:BOOL"] = "OFF"
+        cmake.definitions["ENABLE_DATA_ODBC:BOOL"] = "OFF"
         cmake.definitions["ENABLE_SEVENZIP:BOOL"] = "OFF"
         cmake.definitions["ENABLE_ZIP:BOOL"] = "ON"
         cmake.definitions["ENABLE_APACHECONNECTOR:BOOL"] = "OFF"
@@ -56,13 +59,7 @@ class PocoConan(ConanFile):
         cmake.definitions["ENABLE_POCODOC:BOOL"] = "OFF"
         cmake.definitions["ENABLE_PAGECOMPILER:BOOL"] = "OFF"
         cmake.definitions["ENABLE_PAGECOMPILER_FILE2PAGE:BOOL"] = "OFF"
-        cmake.definitions["ENABLE_REDIS:BOOL"] = "OFF"
         cmake.definitions["ENABLE_TESTS:BOOL"] = "OFF"
-        cmake.definitions["ENABLE_SAMPLES:BOOL"] = "OFF"
-        #
-        cmake.definitions["DISABLE_CPP14:BOOL"] = "ON"
-        cmake.definitions["POCO_UNBUNDLED:BOOL"] = "ON"
-        cmake.definitions["POCO_STATIC:BOOL"] = "ON"
         #
         cmake.configure()
         cmake.build()
