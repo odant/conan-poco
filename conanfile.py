@@ -1,4 +1,5 @@
-from conans import ConanFile, CMake
+from conans import ConanFile, CMake, tools
+import os, glob, shutil
 
 
 class PocoConan(ConanFile):
@@ -28,18 +29,26 @@ class PocoConan(ConanFile):
         self.requires("pcre/[~=8.41]@%s/testing" % self.user)
         self.requires("openssl/[~=1.1.0g]@%s/testing" % self.user)
 
+    def source(self):
+        # Disable install compiler runtime
+        tools.replace_in_file(os.path.join("src", "CMakeLists.txt"), "include(InstallRequiredSystemLibraries)", "")
+
     def build(self):
         cmake = CMake(self)
         #
         cmake.definitions["CMAKE_INSTALL_PREFIX:STRING"] = self.package_folder.replace("\\", "/")
-        cmake.definitions["CMAKE_POSITION_INDEPENDENT_CODE:BOOL"] = "ON"
+        if self.settings.os != "Windows":
+            cmake.definitions["CMAKE_POSITION_INDEPENDENT_CODE:BOOL"] = "ON"
+        if self.settings.os == "Windows" and self.settings.compiler == "Visual Studio":
+            cmake.definitions["POCO_MT"] = "OFF"
+            cmake.definitions["ENABLE_MSVC_MP"] = "OFF"
         #cmake.definitions["BUILD_SHARED_LIBS:BOOL"] = "OFF"
         cmake.definitions["POCO_STATIC:BOOL"] = "ON"
         cmake.definitions["DISABLE_CPP14:BOOL"] = "ON"
         cmake.definitions["POCO_UNBUNDLED:BOOL"] = "ON"
         #
-        cmake.definitions["ENABLE_XML:BOOL"] = "ON"
-        cmake.definitions["ENABLE_JSON:BOOL"] = "ON"
+        cmake.definitions["ENABLE_XML:BOOL"] = "OFF"
+        cmake.definitions["ENABLE_JSON:BOOL"] = "OFF"
         cmake.definitions["ENABLE_MONGODB:BOOL"] = "OFF"
         cmake.definitions["ENABLE_REDIS:BOOL"] = "OFF"
         cmake.definitions["ENABLE_PDF:BOOL"] = "OFF"
@@ -53,7 +62,7 @@ class PocoConan(ConanFile):
         cmake.definitions["ENABLE_DATA_MYSQL:BOOL"] = "OFF"
         cmake.definitions["ENABLE_DATA_ODBC:BOOL"] = "OFF"
         cmake.definitions["ENABLE_SEVENZIP:BOOL"] = "OFF"
-        cmake.definitions["ENABLE_ZIP:BOOL"] = "ON"
+        cmake.definitions["ENABLE_ZIP:BOOL"] = "OFF"
         cmake.definitions["ENABLE_APACHECONNECTOR:BOOL"] = "OFF"
         cmake.definitions["ENABLE_CPPPARSER:BOOL"] = "OFF"
         cmake.definitions["ENABLE_POCODOC:BOOL"] = "OFF"
@@ -63,6 +72,20 @@ class PocoConan(ConanFile):
         #
         cmake.configure()
         cmake.build()
+        cmake.install()
+
+    def package(self):
+        # Move *.cmake scripts
+        for src_fpath in glob.glob(os.path.join(self.package_folder, "lib", "cmake", "Poco", "*.cmake")):
+            fname = os.path.basename(src_fpath)
+            dst_fpath = os.path.join(self.package_folder, fname)
+            self.output.info("Move %s to %s" % (src_fpath, dst_fpath))
+            shutil.move(src=src_fpath, dst=dst_fpath)
+        old_dir = str(os.path.join(self.package_folder, "lib", "cmake"))
+        if os.path.exists(old_dir):
+            self.output.info("Remove %s " % old_dir)
+            tools.rmdir(old_dir)
         
     def package_info(self):
+        self.cpp_info.libs = tools.collect_libs(self)
         self.cpp_info.defines = ["POCO_DISABLE_CPP14", "POCO_STATIC"]
