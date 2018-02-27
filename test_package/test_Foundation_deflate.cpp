@@ -1,10 +1,11 @@
 #include <Poco/DeflatingStream.h>
 #include <Poco/InflatingStream.h>
 
+#include <string>
 #include <sstream>
 #include <cstdlib>
 
-const char* text =""
+const std::string text =""
 "Throwing consider dwelling bachelor joy her proposal laughter. Raptures returned disposed one entirely her men ham. By to admire vanity county an mutual as roused. Of an thrown am warmly merely result depart supply. Required honoured trifling eat pleasure man relation. Assurance yet bed was improving furniture man. Distrusts delighted she listening mrs extensive admitting far.\n"
 "Fat son how smiling mrs natural expense anxious friends. Boy scale enjoy ask abode fanny being son. As material in learning subjects so improved feelings. Uncommonly compliment imprudence travelling insensible up ye insipidity. To up painted delight winding as brandon. Gay regret eat looked warmth easily far should now. Prospect at me wandered on extended wondered thoughts appetite to. Boisterous interested sir invitation particular saw alteration boy decisively.\n"
 "\n"
@@ -23,10 +24,29 @@ const char* text =""
 "It real sent your at. Amounted all shy set why followed declared. Repeated of endeavor mr position kindness offering ignorant so up. Simplicity are melancholy preference considered saw companions. Disposal on outweigh do speedily in on. Him ham although thoughts entirely drawings. Acceptance unreserved old admiration projection nay yet him. Lasted am so before on esteem vanity oh.\n"
 "\n"
 "Dwelling and speedily ignorant any steepest. Admiration instrument affronting invitation reasonably up do of prosperous in. Shy saw declared age debating ecstatic man. Call in so want pure rank am dear were. Remarkably to continuing in surrounded diminution on. In unfeeling existence objection immediate repulsive on he in. Imprudence comparison uncommonly me he difficulty diminution resolution. Likewise proposal differed scarcely dwelling as on raillery. September few dependent extremity own continued and ten prevailed attending. Early to weeks we could.\n"
+"";
 
 int main(int, char**) {
 
-//    std::cout << "Fib 6=" << Fib(6) << std::endl;
+    std::ostringstream compressed_buffer;
+    Poco::DeflatingOutputStream deflater{compressed_buffer};
+    deflater << text;
+    deflater.close();
     
+    const std::string compressed_text = compressed_buffer.str();
+    std::cout << "Source size: " << text.size() << " bytes, compressed size: " << compressed_text.size() << " bytes" << std::endl;
+    
+    std::ostringstream decompressed_buffer;
+    Poco::InflatingOutputStream inflater{decompressed_buffer};
+    inflater << compressed_text;
+    inflater.close();
+    
+    const std::string decompressed_text = decompressed_buffer.str();
+    if (text != decompressed_text) {
+        std::cout << "Invalid compress/decompress!" << std::endl;
+        return EXIT_FAILURE;
+    }
+    
+    std::cout << "Compress/decompress OK" << std::endl;
     return EXIT_SUCCESS;
 }
