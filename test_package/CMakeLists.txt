@@ -19,3 +19,16 @@ add_test(
     WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/bin
     COMMAND test_Foundation_deflate_CONAN_PKG
 )
+
+add_executable(test_Foundation_environment_CONAN_PKG test_Foundation_environment.cpp)
+target_link_libraries(test_Foundation_environment_CONAN_PKG CONAN_PKG::poco)
+set_target_properties(test_Foundation_environment_CONAN_PKG
+    PROPERTIES
+    INSTALL_RPATH "$ORIGIN"
+    BUILD_WITH_INSTALL_RPATH True
+)
+add_test(
+    NAME test_Foundation_environment_CONAN_PKG
+    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/bin
+    COMMAND test_Foundation_environment_CONAN_PKG
+)
