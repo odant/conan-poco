@@ -1,6 +1,7 @@
 #include <Poco/DeflatingStream.h>
 #include <Poco/InflatingStream.h>
 
+#include <iostream>
 #include <string>
 #include <sstream>
 #include <cstdlib>
