@@ -26,7 +26,7 @@ class PocoConan(ConanFile):
 
     def requirements(self):
         self.requires("zlib/[~=1.2.11]@%s/stable" % self.user)
-        self.requires("pcre/8.41@%s/testing" % self.user)
+        self.requires("pcre/[~=8.41]@%s/testing" % self.user)
         self.requires("openssl/[~=1.1.0g]@%s/testing" % self.user)
 
     def source(self):
