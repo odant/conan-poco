@@ -85,6 +85,12 @@ class PocoConan(ConanFile):
         if os.path.exists(old_dir):
             self.output.info("Remove %s " % old_dir)
             tools.rmdir(old_dir)
+        # PDB
+        self.copy("*Crypto.pdb", dst="bin", keep_path=False)
+        self.copy("*Foundation.pdb", dst="bin", keep_path=False)
+        self.copy("*Net.pdb", dst="bin", keep_path=False)
+        self.copy("*NetSSL.pdb", dst="bin", keep_path=False)
+        self.copy("*Util.pdb", dst="bin", keep_path=False)
         
     def package_info(self):
         self.cpp_info.libs = tools.collect_libs(self)
