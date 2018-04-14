@@ -58,3 +58,4 @@ int main(int, char**) {
     std::cout << "Compress/decompress OK" << std::endl;
     return EXIT_SUCCESS;
 }
+

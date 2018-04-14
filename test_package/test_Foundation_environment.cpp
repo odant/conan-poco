@@ -12,5 +12,7 @@
 int main(int, char**) {
 
     std::cout << "Poco::Environment::osName(): " << Poco::Environment::osName() << std::endl;
+
     return EXIT_SUCCESS;
 }
+
