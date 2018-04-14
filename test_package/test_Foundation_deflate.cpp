@@ -1,10 +1,16 @@
+// Test for Poco Conan package
+// Dmitriy Vetutnev, Odant, 2018
+
+
 #include <Poco/DeflatingStream.h>
 #include <Poco/InflatingStream.h>
+
 
 #include <iostream>
 #include <string>
 #include <sstream>
 #include <cstdlib>
+
 
 const std::string text =""
 "Throwing consider dwelling bachelor joy her proposal laughter. Raptures returned disposed one entirely her men ham. By to admire vanity county an mutual as roused. Of an thrown am warmly merely result depart supply. Required honoured trifling eat pleasure man relation. Assurance yet bed was improving furniture man. Distrusts delighted she listening mrs extensive admitting far.\n"
@@ -27,27 +33,28 @@ const std::string text =""
 "Dwelling and speedily ignorant any steepest. Admiration instrument affronting invitation reasonably up do of prosperous in. Shy saw declared age debating ecstatic man. Call in so want pure rank am dear were. Remarkably to continuing in surrounded diminution on. In unfeeling existence objection immediate repulsive on he in. Imprudence comparison uncommonly me he difficulty diminution resolution. Likewise proposal differed scarcely dwelling as on raillery. September few dependent extremity own continued and ten prevailed attending. Early to weeks we could.\n"
 "";
 
+
 int main(int, char**) {
 
     std::ostringstream compressed_buffer;
     Poco::DeflatingOutputStream deflater{compressed_buffer};
     deflater << text;
     deflater.close();
-    
+
     const std::string compressed_text = compressed_buffer.str();
     std::cout << "Source size: " << text.size() << " bytes, compressed size: " << compressed_text.size() << " bytes" << std::endl;
-    
+
     std::ostringstream decompressed_buffer;
     Poco::InflatingOutputStream inflater{decompressed_buffer};
     inflater << compressed_text;
     inflater.close();
-    
+
     const std::string decompressed_text = decompressed_buffer.str();
     if (text != decompressed_text) {
         std::cout << "Invalid compress/decompress!" << std::endl;
         return EXIT_FAILURE;
     }
-    
+
     std::cout << "Compress/decompress OK" << std::endl;
     return EXIT_SUCCESS;
 }

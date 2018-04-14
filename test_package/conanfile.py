@@ -1,3 +1,7 @@
+# Test for Poco Conan package
+# Dmitriy Vetutnev, Odant, 2018
+
+
 from conans import ConanFile, CMake
 
 
