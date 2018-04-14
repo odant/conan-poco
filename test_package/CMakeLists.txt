@@ -54,3 +54,16 @@ add_test(
     COMMAND test_Foundation_regex_CONAN_PKG
 )
 
+add_executable(test_Util_CONAN_PKG test_Util.cpp)
+target_link_libraries(test_Util_CONAN_PKG CONAN_PKG::poco)
+set_target_properties(test_Util_CONAN_PKG
+    PROPERTIES
+    INSTALL_RPATH "$ORIGIN"
+    BUILD_WITH_INSTALL_RPATH True
+)
+add_test(
+    NAME test_Util_CONAN_PKG
+    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/bin
+    COMMAND test_Util_CONAN_PKG
+)
+
