@@ -97,7 +97,7 @@ class PocoConan(ConanFile):
         self.copy("*Util.pdb", dst="bin", keep_path=False)
         
     def package_info(self):
-        self.cpp_info.libs = ["PocoNetSSL", "PocoCrypto", "PocoUtil", "PocoFoundation"]
+        self.cpp_info.libs = ["PocoNetSSL", "PocoNet", "PocoCrypto", "PocoUtil", "PocoFoundation"]
         self.cpp_info.defines = ["POCO_DISABLE_CPP14"]
         if self.settings.os == "Windows":
             self.cpp_info.defines.extend(["POCO_STATIC", "POCO_NO_AUTOMATIC_LIBS"])

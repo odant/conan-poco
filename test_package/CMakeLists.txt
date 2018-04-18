@@ -80,3 +80,17 @@ add_test(
     COMMAND test_Crypto_CONAN_PKG
 )
 
+add_executable(test_Net_CONAN_PKG test_Net.cpp)
+target_link_libraries(test_Net_CONAN_PKG CONAN_PKG::poco)
+set_target_properties(test_Net_CONAN_PKG
+    PROPERTIES
+    INSTALL_RPATH "$ORIGIN"
+    BUILD_WITH_INSTALL_RPATH True
+)
+add_test(
+    NAME test_Net_CONAN_PKG
+    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/bin
+    COMMAND test_Net_CONAN_PKG
+)
+set_property(TEST test_Net_CONAN_PKG PROPERTY TIMEOUT 10)
+
