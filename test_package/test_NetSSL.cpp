@@ -2,8 +2,13 @@
 // Dmitriy Vetutnev, Odant, 2018
 
 
-#include <Poco/Net/ServerSocket.h>
+#include <Poco/SharedPtr.h>
+#include <Poco/AutoPtr.h>
+#include <Poco/Net/SecureServerSocket.h>
+#include <Poco/Net/SecureStreamSocket.h>
 #include <Poco/Net/SocketStream.h>
+#include <Poco/Net/SSLManager.h>
+#include <Poco/Net/AcceptCertificateHandler.h>
 
 
 #include <iostream>
@@ -13,6 +18,7 @@
 #include <sstream>
 
 
+using namespace Poco;
 using namespace Poco::Net;
 
 
@@ -22,7 +28,7 @@ auto server = [](const SocketAddress& addr) {
               << ", thread ID: " << std::hex << std::showbase << std::this_thread::get_id() << std::dec \
               << std::endl;
 
-    ServerSocket listener{addr};
+    SecureServerSocket listener{addr};
     StreamSocket socket = listener.acceptConnection();
 
     char buffer[64] = {0};
@@ -40,14 +46,31 @@ int main(int, char**) {
 
     std::cout << "Main thread ID: " << std::hex << std::showbase << std::this_thread::get_id() << std::dec << std::endl;
 
-    const SocketAddress addr{"127.0.0.1", 9758};
+    {
+        std::cout << "Initialize client TLS context..." << std:: endl;
+        const bool isServer = false;
+        SharedPtr<InvalidCertificateHandler> certHandler = new AcceptCertificateHandler(isServer);
+        AutoPtr<Context> context = new Context(Context::CLIENT_USE, "certificate.pem", Context::VERIFY_RELAXED);
+        SSLManager::instance().initializeClient(nullptr, certHandler, context);
+    }
+    {
+        std::cout << "Initialize server TLS context..." << std:: endl;
+        const bool isServer = true;
+        SharedPtr<InvalidCertificateHandler> certHandler = new AcceptCertificateHandler(isServer);
+        AutoPtr<Context> context = new Context(Context::SERVER_USE, "key.pem", "certificate.pem", "certificate.pem", Context::VERIFY_RELAXED);
+        SSLManager::instance().initializeServer(nullptr, certHandler, context);
+    }
+
+
+    const SocketAddress addr{"127.0.0.1", 49758};
 
     std::thread server_thread{server, addr};
     std::this_thread::sleep_for(std::chrono::milliseconds{100});
 
 
     std::cout << "Connect to server..." << std::endl;
-    StreamSocket socket{addr};
+    SecureStreamSocket socket{addr};
+    std::cout << "Server hostname: " << socket.getPeerHostName() << std::endl;
     SocketStream stream{socket};
     stream << "Ping";
     stream.flush();

@@ -10,6 +10,10 @@ include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
 conan_basic_setup(TARGETS)
 
 
+configure_file(key.pem bin/key.pem COPYONLY)
+configure_file(certificate.pem bin/certificate.pem COPYONLY)
+
+
 enable_testing()
 
 
@@ -93,4 +97,18 @@ add_test(
     COMMAND test_Net_CONAN_PKG
 )
 set_property(TEST test_Net_CONAN_PKG PROPERTY TIMEOUT 10)
+
+add_executable(test_NetSSL_CONAN_PKG test_NetSSL.cpp)
+target_link_libraries(test_NetSSL_CONAN_PKG CONAN_PKG::poco)
+set_target_properties(test_NetSSL_CONAN_PKG
+    PROPERTIES
+    INSTALL_RPATH "$ORIGIN"
+    BUILD_WITH_INSTALL_RPATH True
+)
+add_test(
+    NAME test_NetSSL_CONAN_PKG
+    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/bin
+    COMMAND test_NetSSL_CONAN_PKG
+)
+set_property(TEST test_NetSSL_CONAN_PKG PROPERTY TIMEOUT 10)
 
