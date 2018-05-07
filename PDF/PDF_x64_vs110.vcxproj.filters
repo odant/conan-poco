@@ -1,0 +1,501 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{10de3bd5-a8aa-4ecb-ba87-4d5fbce8c24b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{ea19b2cb-323e-4bd6-99f1-c57118f4b93d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="3rd Party">
+      <UniqueIdentifier>{00da47b7-262a-436d-98f5-e831926d0cd1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="3rd Party\PNG">
+      <UniqueIdentifier>{35efdbf2-ee2d-4fe5-bd4f-d6f7e1ac0f4b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="3rd Party\PNG\Header Files">
+      <UniqueIdentifier>{7a5a7479-130b-4967-a254-e6eab40515cc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="3rd Party\PNG\Source Files">
+      <UniqueIdentifier>{876e0298-84e9-453f-b3e8-744e1227d7f8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="3rd Party\zlib">
+      <UniqueIdentifier>{2b46e86f-b4b2-4162-93a5-eefa3eb1d11d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="3rd Party\zlib\Header Files">
+      <UniqueIdentifier>{8b18e683-3f27-4d87-898c-efe77ad254d4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="3rd Party\zlib\Source Files">
+      <UniqueIdentifier>{45b4b316-251a-4fd0-b440-998ffc433627}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="3rd Party\HARU">
+      <UniqueIdentifier>{17dbfec0-1e81-43bd-8d60-b5c402e8c6bd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="3rd Party\HARU\Source Files">
+      <UniqueIdentifier>{f24e8b19-89ac-4330-a96a-d7fa9ce19b2b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="3rd Party\HARU\Header Files">
+      <UniqueIdentifier>{fd1980a5-84c4-42cc-b963-292ee0f15af4}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\Destination.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Document.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Encoder.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Font.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Image.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\LinkAnnotation.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Outline.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Page.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\PDFException.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\TextAnnotation.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\png.c">
+      <Filter>3rd Party\PNG\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\pngerror.c">
+      <Filter>3rd Party\PNG\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\pnggccrd.c">
+      <Filter>3rd Party\PNG\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\pngget.c">
+      <Filter>3rd Party\PNG\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\pngmem.c">
+      <Filter>3rd Party\PNG\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\pngpread.c">
+      <Filter>3rd Party\PNG\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\pngread.c">
+      <Filter>3rd Party\PNG\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\pngrio.c">
+      <Filter>3rd Party\PNG\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\pngrtran.c">
+      <Filter>3rd Party\PNG\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\pngrutil.c">
+      <Filter>3rd Party\PNG\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\pngset.c">
+      <Filter>3rd Party\PNG\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\pngtest.c">
+      <Filter>3rd Party\PNG\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\pngtrans.c">
+      <Filter>3rd Party\PNG\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\pngvcrd.c">
+      <Filter>3rd Party\PNG\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\pngwio.c">
+      <Filter>3rd Party\PNG\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\pngwrite.c">
+      <Filter>3rd Party\PNG\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\pngwtran.c">
+      <Filter>3rd Party\PNG\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\pngwutil.c">
+      <Filter>3rd Party\PNG\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\adler32.c">
+      <Filter>3rd Party\zlib\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\compress.c">
+      <Filter>3rd Party\zlib\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\crc32.c">
+      <Filter>3rd Party\zlib\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\deflate.c">
+      <Filter>3rd Party\zlib\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gzio.c">
+      <Filter>3rd Party\zlib\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\infback.c">
+      <Filter>3rd Party\zlib\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\inffast.c">
+      <Filter>3rd Party\zlib\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\inflate.c">
+      <Filter>3rd Party\zlib\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\inftrees.c">
+      <Filter>3rd Party\zlib\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\trees.c">
+      <Filter>3rd Party\zlib\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\zutil.c">
+      <Filter>3rd Party\zlib\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\hpdf_3dmeasure.c">
+      <Filter>3rd Party\HARU\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\hpdf_annotation.c">
+      <Filter>3rd Party\HARU\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\hpdf_array.c">
+      <Filter>3rd Party\HARU\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\hpdf_binary.c">
+      <Filter>3rd Party\HARU\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\hpdf_boolean.c">
+      <Filter>3rd Party\HARU\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\hpdf_catalog.c">
+      <Filter>3rd Party\HARU\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\hpdf_destination.c">
+      <Filter>3rd Party\HARU\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\hpdf_dict.c">
+      <Filter>3rd Party\HARU\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\hpdf_doc.c">
+      <Filter>3rd Party\HARU\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\hpdf_doc_png.c">
+      <Filter>3rd Party\HARU\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\hpdf_encoder.c">
+      <Filter>3rd Party\HARU\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\hpdf_encoder_cns.c">
+      <Filter>3rd Party\HARU\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\hpdf_encoder_cnt.c">
+      <Filter>3rd Party\HARU\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\hpdf_encoder_jp.c">
+      <Filter>3rd Party\HARU\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\hpdf_encoder_kr.c">
+      <Filter>3rd Party\HARU\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\hpdf_encoder_utf.c">
+      <Filter>3rd Party\HARU\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\hpdf_encrypt.c">
+      <Filter>3rd Party\HARU\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\hpdf_encryptdict.c">
+      <Filter>3rd Party\HARU\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\hpdf_error.c">
+      <Filter>3rd Party\HARU\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\hpdf_exdata.c">
+      <Filter>3rd Party\HARU\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\hpdf_ext_gstate.c">
+      <Filter>3rd Party\HARU\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\hpdf_font.c">
+      <Filter>3rd Party\HARU\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\hpdf_font_cid.c">
+      <Filter>3rd Party\HARU\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\hpdf_font_tt.c">
+      <Filter>3rd Party\HARU\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\hpdf_font_type1.c">
+      <Filter>3rd Party\HARU\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\hpdf_fontdef.c">
+      <Filter>3rd Party\HARU\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\hpdf_fontdef_base14.c">
+      <Filter>3rd Party\HARU\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\hpdf_fontdef_cid.c">
+      <Filter>3rd Party\HARU\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\hpdf_fontdef_cns.c">
+      <Filter>3rd Party\HARU\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\hpdf_fontdef_cnt.c">
+      <Filter>3rd Party\HARU\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\hpdf_fontdef_jp.c">
+      <Filter>3rd Party\HARU\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\hpdf_fontdef_kr.c">
+      <Filter>3rd Party\HARU\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\hpdf_fontdef_tt.c">
+      <Filter>3rd Party\HARU\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\hpdf_fontdef_type1.c">
+      <Filter>3rd Party\HARU\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\hpdf_gstate.c">
+      <Filter>3rd Party\HARU\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\hpdf_image.c">
+      <Filter>3rd Party\HARU\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\hpdf_image_ccitt.c">
+      <Filter>3rd Party\HARU\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\hpdf_image_png.c">
+      <Filter>3rd Party\HARU\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\hpdf_info.c">
+      <Filter>3rd Party\HARU\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\hpdf_list.c">
+      <Filter>3rd Party\HARU\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\hpdf_mmgr.c">
+      <Filter>3rd Party\HARU\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\hpdf_name.c">
+      <Filter>3rd Party\HARU\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\hpdf_namedict.c">
+      <Filter>3rd Party\HARU\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\hpdf_null.c">
+      <Filter>3rd Party\HARU\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\hpdf_number.c">
+      <Filter>3rd Party\HARU\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\hpdf_objects.c">
+      <Filter>3rd Party\HARU\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\hpdf_outline.c">
+      <Filter>3rd Party\HARU\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\hpdf_page_label.c">
+      <Filter>3rd Party\HARU\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\hpdf_page_operator.c">
+      <Filter>3rd Party\HARU\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\hpdf_pages.c">
+      <Filter>3rd Party\HARU\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\hpdf_pdfa.c">
+      <Filter>3rd Party\HARU\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\hpdf_real.c">
+      <Filter>3rd Party\HARU\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\hpdf_streams.c">
+      <Filter>3rd Party\HARU\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\hpdf_string.c">
+      <Filter>3rd Party\HARU\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\hpdf_u3d.c">
+      <Filter>3rd Party\HARU\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\hpdf_utils.c">
+      <Filter>3rd Party\HARU\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\hpdf_xref.c">
+      <Filter>3rd Party\HARU\Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="include\Poco\PDF\Destination.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Poco\PDF\Document.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Poco\PDF\Encoder.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Poco\PDF\Font.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Poco\PDF\Image.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Poco\PDF\LinkAnnotation.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Poco\PDF\Outline.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Poco\PDF\Page.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Poco\PDF\PDF.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Poco\PDF\PDFException.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Poco\PDF\Resource.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Poco\PDF\TextAnnotation.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Poco\PDF\png.h">
+      <Filter>3rd Party\PNG\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Poco\PDF\pngconf.h">
+      <Filter>3rd Party\PNG\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Poco\PDF\crc32.h">
+      <Filter>3rd Party\zlib\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Poco\PDF\deflate.h">
+      <Filter>3rd Party\zlib\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Poco\PDF\inffast.h">
+      <Filter>3rd Party\zlib\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Poco\PDF\inffixed.h">
+      <Filter>3rd Party\zlib\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Poco\PDF\inflate.h">
+      <Filter>3rd Party\zlib\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Poco\PDF\inftrees.h">
+      <Filter>3rd Party\zlib\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Poco\PDF\trees.h">
+      <Filter>3rd Party\zlib\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Poco\PDF\zconf.h">
+      <Filter>3rd Party\zlib\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Poco\PDF\zlib.h">
+      <Filter>3rd Party\zlib\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Poco\PDF\zutil.h">
+      <Filter>3rd Party\zlib\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Poco\PDF\hpdf.h">
+      <Filter>3rd Party\HARU\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Poco\PDF\hpdf_3dmeasure.h">
+      <Filter>3rd Party\HARU\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Poco\PDF\hpdf_annotation.h">
+      <Filter>3rd Party\HARU\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Poco\PDF\hpdf_catalog.h">
+      <Filter>3rd Party\HARU\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Poco\PDF\hpdf_conf.h">
+      <Filter>3rd Party\HARU\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Poco\PDF\hpdf_consts.h">
+      <Filter>3rd Party\HARU\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Poco\PDF\hpdf_destination.h">
+      <Filter>3rd Party\HARU\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Poco\PDF\hpdf_doc.h">
+      <Filter>3rd Party\HARU\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Poco\PDF\hpdf_encoder.h">
+      <Filter>3rd Party\HARU\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Poco\PDF\hpdf_encrypt.h">
+      <Filter>3rd Party\HARU\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Poco\PDF\hpdf_encryptdict.h">
+      <Filter>3rd Party\HARU\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Poco\PDF\hpdf_error.h">
+      <Filter>3rd Party\HARU\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Poco\PDF\hpdf_exdata.h">
+      <Filter>3rd Party\HARU\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Poco\PDF\hpdf_ext_gstate.h">
+      <Filter>3rd Party\HARU\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Poco\PDF\hpdf_font.h">
+      <Filter>3rd Party\HARU\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Poco\PDF\hpdf_fontdef.h">
+      <Filter>3rd Party\HARU\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Poco\PDF\hpdf_gstate.h">
+      <Filter>3rd Party\HARU\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Poco\PDF\hpdf_image.h">
+      <Filter>3rd Party\HARU\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Poco\PDF\hpdf_info.h">
+      <Filter>3rd Party\HARU\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Poco\PDF\hpdf_list.h">
+      <Filter>3rd Party\HARU\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Poco\PDF\hpdf_mmgr.h">
+      <Filter>3rd Party\HARU\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Poco\PDF\hpdf_namedict.h">
+      <Filter>3rd Party\HARU\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Poco\PDF\hpdf_objects.h">
+      <Filter>3rd Party\HARU\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Poco\PDF\hpdf_outline.h">
+      <Filter>3rd Party\HARU\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Poco\PDF\hpdf_page_label.h">
+      <Filter>3rd Party\HARU\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Poco\PDF\hpdf_pages.h">
+      <Filter>3rd Party\HARU\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Poco\PDF\hpdf_pdfa.h">
+      <Filter>3rd Party\HARU\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Poco\PDF\hpdf_streams.h">
+      <Filter>3rd Party\HARU\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Poco\PDF\hpdf_types.h">
+      <Filter>3rd Party\HARU\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Poco\PDF\hpdf_u3d.h">
+      <Filter>3rd Party\HARU\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Poco\PDF\hpdf_utils.h">
+      <Filter>3rd Party\HARU\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Poco\PDF\hpdf_version.h">
+      <Filter>3rd Party\HARU\Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>
