@@ -101,9 +101,9 @@ class PocoConan(ConanFile):
         self.cpp_info.libs = ["PocoNetSSL", "PocoNet", "PocoCrypto", "PocoUtil", "PocoFoundation"]
         suffix = "d" if self.settings == "Debug" else ""
         if self.settings.os == "Windows":
-            suffix = "md"
-        for i in self.cpp_info.libs:
-            i += suffix
+            suffix = "md" + suffix
+        for i, _ in enumerate(self.cpp_info.libs):
+            self.cpp_info.libs[i] += suffix
         # Defines
         self.cpp_info.defines = ["POCO_DISABLE_CPP14"]
         if self.settings.os == "Windows":
