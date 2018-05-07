@@ -99,9 +99,9 @@ class PocoConan(ConanFile):
     def package_info(self):
         # Libraries
         self.cpp_info.libs = ["PocoNetSSL", "PocoNet", "PocoCrypto", "PocoUtil", "PocoFoundation"]
-        suffix = "d" if self.settings == "Debug" else ""
-        if self.settings.os == "Windows":
-            suffix = "md" + suffix
+        suffix = "md" if self.settings.os == "Windows" else ""
+        if self.settings.build_type == "Debug":
+            suffix += "d"
         for i, _ in enumerate(self.cpp_info.libs):
             self.cpp_info.libs[i] += suffix
         # Defines
