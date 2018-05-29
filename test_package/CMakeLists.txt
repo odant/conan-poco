@@ -17,8 +17,7 @@ configure_file(certificate.pem bin/certificate.pem COPYONLY)
 enable_testing()
 
 
-# CONAN_PKG imported targets
-
+# Conan imported targets
 add_executable(test_Foundation_deflate_CONAN_PKG test_Foundation_deflate.cpp)
 target_link_libraries(test_Foundation_deflate_CONAN_PKG CONAN_PKG::poco)
 set_target_properties(test_Foundation_deflate_CONAN_PKG
@@ -111,4 +110,8 @@ add_test(
     COMMAND test_NetSSL_CONAN_PKG
 )
 set_property(TEST test_NetSSL_CONAN_PKG PROPERTY TIMEOUT 10)
+
+
+# Poco imported targets
+find_package(Poco REQUIRED)
 

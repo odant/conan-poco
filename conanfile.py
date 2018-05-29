@@ -19,7 +19,7 @@ class PocoConan(ConanFile):
         "arch": ["x86_64", "x86", "mips"]
     }
     generators = "cmake"
-    exports_sources = "src/*", "CMakeLists.txt"
+    exports_sources = "src/*", "CMakeLists.txt", "FindPoco.cmake"
     no_copy_source = True
     build_policy = "missing"
 
@@ -79,6 +79,7 @@ class PocoConan(ConanFile):
         cmake.install()
 
     def package(self):
+        self.copy("FindPoco.cmake", dst=".", src=".", keep_path=False)
         # Move *.cmake scripts
         for src_fpath in glob.glob(os.path.join(self.package_folder, "lib", "cmake", "Poco", "*.cmake")):
             fname = os.path.basename(src_fpath)
