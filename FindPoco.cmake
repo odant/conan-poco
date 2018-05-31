@@ -2,6 +2,7 @@
 # Dmitriy Vetutnev, ODANT 2018
 
 
+# Include path
 find_path(Poco_INCLUDE_DIR
     NAMES Poco/Poco.h
     PATHS ${CONAN_INCLUDE_DIRS_POCO}
@@ -35,10 +36,57 @@ if(Poco_INCLUDE_DIR AND EXISTS ${Poco_INCLUDE_DIR}/Poco/Version.h)
 
 endif()
 
+# Libaries
+find_library(Poco_Foundation_LIBRARY
+    NAMES PocoFoundation PocoFoundationmd PocoFoundationmdd
+    PATHS ${CONAN_LIB_DIRS_POCO}
+    NO_DEFAULT_PATH
+)
+
 
 include(FindPackageHandleStandardArgs)
 find_package_handle_standard_args(Poco
-    REQUIRED_VARS Poco_INCLUDE_DIR
-    VERSION_VAR Poco_VERSION_STRING
+    REQUIRED_VARS
+        Poco_INCLUDE_DIR
+        Poco_Foundation_LIBRARY
+    VERSION_VAR
+        Poco_VERSION_STRING
 )
 
+
+if(Poco_FOUND)
+
+    # Set-up variables
+    set(Poco_INCLUDE_DIRS ${Poco_INCLUDE_DIR})
+    set(Poco_LIBRARIES )
+    mark_as_advanced(Poco_INCLUDE_DIR Poco_Foundation_LIBRARY)
+    set(Poco_DEFINITIONS ${CONAN_COMPILE_DEFINITIONS_POCO}) # Add defines from package_info
+
+    # Imported targets
+    include(CMakeFindDependencyMacro)
+
+    if(NOT TARGET Poco::Foundation)
+
+        add_library(Poco::Foundation UNKNOWN IMPORTED)
+        set_target_properties(Poco::Foundation PROPERTIES
+            INTERFACE_INCLUDE_DIRECTORIES ${Poco_INCLUDE_DIR}
+            IMPORTED_LOCATION ${Poco_Foundation_LIBRARY}
+            INTERFACE_COMPILE_DEFINITIONS "${Poco_DEFINITIONS}"
+        )
+
+        find_dependency(Threads)
+        find_dependency(ZLIB)
+        find_dependency(PCRE)
+        set_property(TARGET Poco::Foundation
+            APPEND PROPERTY INTERFACE_LINK_LIBRARIES Threads::Threads ZLIB::ZLIB PCRE::PCRE
+        )
+
+        if(WIN32)
+            set_property(TARGET Poco::Foundation
+                APPEND PROPERTY INTERFACE_LINK_LIBRARIES "ws2_32" "Iphlpapi" "Crypt32"
+            )
+        endif()
+
+    endif()
+
+endif()

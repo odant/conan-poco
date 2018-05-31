@@ -114,4 +114,42 @@ set_property(TEST test_NetSSL_CONAN_PKG PROPERTY TIMEOUT 10)
 
 # Poco imported targets
 find_package(Poco REQUIRED)
+add_executable(test_Foundation_deflate test_Foundation_deflate.cpp)
+target_link_libraries(test_Foundation_deflate Poco::Foundation)
+set_target_properties(test_Foundation_deflate
+    PROPERTIES
+    INSTALL_RPATH "$ORIGIN"
+    BUILD_WITH_INSTALL_RPATH True
+)
+add_test(
+    NAME test_Foundation_deflate
+    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/bin
+    COMMAND test_Foundation_deflate
+)
+
+add_executable(test_Foundation_environment test_Foundation_environment.cpp)
+target_link_libraries(test_Foundation_environment Poco::Foundation)
+set_target_properties(test_Foundation_environment
+    PROPERTIES
+    INSTALL_RPATH "$ORIGIN"
+    BUILD_WITH_INSTALL_RPATH True
+)
+add_test(
+    NAME test_Foundation_environment
+    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/bin
+    COMMAND test_Foundation_environment
+)
+
+add_executable(test_Foundation_regex test_Foundation_regex.cpp)
+target_link_libraries(test_Foundation_regex Poco::Foundation)
+set_target_properties(test_Foundation_regex
+    PROPERTIES
+    INSTALL_RPATH "$ORIGIN"
+    BUILD_WITH_INSTALL_RPATH True
+)
+add_test(
+    NAME test_Foundation_regex
+    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/bin
+    COMMAND test_Foundation_regex
+)
 
