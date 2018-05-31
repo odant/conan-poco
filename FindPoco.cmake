@@ -38,7 +38,7 @@ endif()
 
 # Libaries
 find_library(Poco_Foundation_LIBRARY
-    NAMES PocoFoundation PocoFoundationmd PocoFoundationmdd
+    NAMES PocoFoundation PocoFoundationd PocoFoundationmd PocoFoundationmdd
     PATHS ${CONAN_LIB_DIRS_POCO}
     NO_DEFAULT_PATH
 )
