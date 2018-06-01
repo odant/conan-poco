@@ -36,9 +36,33 @@ if(Poco_INCLUDE_DIR AND EXISTS ${Poco_INCLUDE_DIR}/Poco/Version.h)
 
 endif()
 
-# Libaries
+# Find libaries
 find_library(Poco_Foundation_LIBRARY
     NAMES PocoFoundation PocoFoundationd PocoFoundationmd PocoFoundationmdd
+    PATHS ${CONAN_LIB_DIRS_POCO}
+    NO_DEFAULT_PATH
+)
+
+find_library(Poco_Util_LIBRARY
+    NAMES PocoUtil PocoUtild PocoUtilmd PocoUtilmdd
+    PATHS ${CONAN_LIB_DIRS_POCO}
+    NO_DEFAULT_PATH
+)
+
+find_library(Poco_Crypto_LIBRARY
+    NAMES PocoCrypto PocoCryptod PocoCryptomd PocoCryptomdd
+    PATHS ${CONAN_LIB_DIRS_POCO}
+    NO_DEFAULT_PATH
+)
+
+find_library(Poco_Net_LIBRARY
+    NAMES PocoNet PocoNetd PocoNetmd PocoNetmdd
+    PATHS ${CONAN_LIB_DIRS_POCO}
+    NO_DEFAULT_PATH
+)
+
+find_library(Poco_NetSSL_LIBRARY
+    NAMES PocoNetSSL PocoNetSSLd PocoNetSSLmd PocoNetSSLmdd
     PATHS ${CONAN_LIB_DIRS_POCO}
     NO_DEFAULT_PATH
 )
@@ -49,6 +73,10 @@ find_package_handle_standard_args(Poco
     REQUIRED_VARS
         Poco_INCLUDE_DIR
         Poco_Foundation_LIBRARY
+        Poco_Util_LIBRARY
+        Poco_Crypto_LIBRARY
+        Poco_Net_LIBRARY
+        Poco_NetSSL_LIBRARY
     VERSION_VAR
         Poco_VERSION_STRING
 )
@@ -58,8 +86,21 @@ if(Poco_FOUND)
 
     # Set-up variables
     set(Poco_INCLUDE_DIRS ${Poco_INCLUDE_DIR})
-    set(Poco_LIBRARIES )
-    mark_as_advanced(Poco_INCLUDE_DIR Poco_Foundation_LIBRARY)
+    set(Poco_LIBRARIES
+        Poco_Foundation_LIBRARY
+        Poco_Util_LIBRARY
+        Poco_Crypto_LIBRARY
+        Poco_Net_LIBRARY
+        Poco_NetSSL_LIBRARY
+    )
+    mark_as_advanced(
+        Poco_INCLUDE_DIR
+        Poco_Foundation_LIBRARY
+        Poco_Util_LIBRARY
+        Poco_Crypto_LIBRARY
+        Poco_Net_LIBRARY
+        Poco_NetSSL_LIBRARY
+    )
     set(Poco_DEFINITIONS ${CONAN_COMPILE_DEFINITIONS_POCO}) # Add defines from package_info
 
     # Imported targets
@@ -86,6 +127,60 @@ if(Poco_FOUND)
                 APPEND PROPERTY INTERFACE_LINK_LIBRARIES "iphlpapi"
             )
         endif()
+
+    endif()
+
+    if(NOT TARGET Poco::Util)
+
+        add_library(Poco::Util UNKNOWN IMPORTED)
+        set_target_properties(Poco::Util PROPERTIES
+            IMPORTED_LOCATION ${Poco_Util_LIBRARY}
+            INTERFACE_LINK_LIBRARIES Poco::Foundation
+        )
+
+    endif()
+
+    if(NOT TARGET Poco::Crypto)
+
+        add_library(Poco::Crypto UNKNOWN IMPORTED)
+        set_target_properties(Poco::Crypto PROPERTIES
+            IMPORTED_LOCATION ${Poco_Crypto_LIBRARY}
+            INTERFACE_LINK_LIBRARIES Poco::Foundation
+        )
+
+        find_dependency(OpenSSL)
+        set_property(TARGET Poco::Crypto
+            APPEND PROPERTY INTERFACE_LINK_LIBRARIES OpenSSL::SSL
+        )
+
+    endif()
+
+    if(NOT TARGET Poco::Net)
+
+        add_library(Poco::Net UNKNOWN IMPORTED)
+        set_target_properties(Poco::Net PROPERTIES
+            IMPORTED_LOCATION ${Poco_Net_LIBRARY}
+            INTERFACE_LINK_LIBRARIES Poco::Foundation
+        )
+
+        if(WIN32)
+            set_property(TARGET Poco::Net
+                APPEND PROPERTY INTERFACE_LINK_LIBRARIES "ws2_32"
+            )
+        endif()
+
+    endif()
+
+    if(NOT TARGET Poco::NetSSL)
+
+        add_library(Poco::NetSSL UNKNOWN IMPORTED)
+        set_target_properties(Poco::NetSSL PROPERTIES
+            IMPORTED_LOCATION ${Poco_NetSSL_LIBRARY}
+        )
+
+        set_property(TARGET Poco::NetSSL
+            APPEND PROPERTY INTERFACE_LINK_LIBRARIES Poco::Net Poco::Util Poco::Crypto
+        )
 
     endif()
 

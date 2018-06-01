@@ -153,3 +153,57 @@ add_test(
     COMMAND test_Foundation_regex
 )
 
+add_executable(test_Util test_Util.cpp)
+target_link_libraries(test_Util Poco::Util)
+set_target_properties(test_Util
+    PROPERTIES
+    INSTALL_RPATH "$ORIGIN"
+    BUILD_WITH_INSTALL_RPATH True
+)
+add_test(
+    NAME test_Util
+    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/bin
+    COMMAND test_Util
+)
+
+add_executable(test_Crypto test_Crypto.cpp)
+target_link_libraries(test_Crypto Poco::Crypto)
+set_target_properties(test_Crypto
+    PROPERTIES
+    INSTALL_RPATH "$ORIGIN"
+    BUILD_WITH_INSTALL_RPATH True
+)
+add_test(
+    NAME test_Crypto
+    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/bin
+    COMMAND test_Crypto
+)
+
+add_executable(test_Net test_Net.cpp)
+target_link_libraries(test_Net Poco::Net)
+set_target_properties(test_Net
+    PROPERTIES
+    INSTALL_RPATH "$ORIGIN"
+    BUILD_WITH_INSTALL_RPATH True
+)
+add_test(
+    NAME test_Net
+    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/bin
+    COMMAND test_Net
+)
+set_property(TEST test_Net PROPERTY TIMEOUT 10)
+
+add_executable(test_NetSSL test_NetSSL.cpp)
+target_link_libraries(test_NetSSL Poco::NetSSL)
+set_target_properties(test_NetSSL
+    PROPERTIES
+    INSTALL_RPATH "$ORIGIN"
+    BUILD_WITH_INSTALL_RPATH True
+)
+add_test(
+    NAME test_NetSSL
+    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/bin
+    COMMAND test_NetSSL
+)
+set_property(TEST test_NetSSL PROPERTY TIMEOUT 10)
+
