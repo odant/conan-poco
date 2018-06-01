@@ -14,7 +14,7 @@ environment:
   CONAN_STABLE_CHANNEL: stable
 
   CONAN_VISUAL_RUNTIMES: MDd, MD
-  
+
   CONAN_UPLOAD: https://api.bintray.com/conan/odant/conan
   CONAN_LOGIN_USERNAME: dvetutnev
   CONAN_STABLE_BRANCH_PATTERN: release/*
@@ -41,16 +41,14 @@ environment:
       CONAN_ARCHS: x86
 
 install:
-  - git submodule update --init --recursive
-
   - set PATH=%PYTHON%;%PYTHON%\\Scripts\\;%PATH%
   - pip install conan
   - pip install conan_package_tools
 
   - conan user
-  
+
 build: false
-  
+
 test_script:
   - python build.py
 
