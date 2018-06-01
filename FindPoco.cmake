@@ -83,7 +83,7 @@ if(Poco_FOUND)
 
         if(WIN32)
             set_property(TARGET Poco::Foundation
-                APPEND PROPERTY INTERFACE_LINK_LIBRARIES "ws2_32" "Iphlpapi" "Crypt32"
+                APPEND PROPERTY INTERFACE_LINK_LIBRARIES "iphlpapi"
             )
         endif()
 
