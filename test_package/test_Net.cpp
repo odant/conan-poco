@@ -32,7 +32,7 @@ auto server = [](const SocketAddress& addr) {
     std::cout << std::endl;
 
     const char* response = "Pong";
-    socket.sendBytes(response, std::strlen(response));
+    socket.sendBytes(response, static_cast<int>(std::strlen(response)));
 };
 
 
