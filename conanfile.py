@@ -29,9 +29,9 @@ class PocoConan(ConanFile):
             raise Exception("This package is only compatible with libstdc++11")
 
     def requirements(self):
-        self.requires("zlib/[~=1.2.11]@%s/stable" % self.user)
-        self.requires("pcre/[~=8.41]@%s/stable" % self.user)
-        self.requires("openssl/[~=1.1.0g]@%s/stable" % self.user)
+        self.requires("zlib/[>=1.2.11]@%s/stable" % self.user)
+        self.requires("pcre/[>=8.41]@%s/stable" % self.user)
+        self.requires("openssl/1.1.0g@%s/stable" % self.user)
 
     def source(self):
         # Disable install compiler runtime
