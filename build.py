@@ -10,14 +10,19 @@ visual_versions = ["14", "15"] if "CONAN_VISUAL_VERSIONS" not in os.environ else
 visual_runtimes = ["MD", "MDd"] if "CONAN_VISUAL_RUNTIMES" not in os.environ else None
 dll_sign = False if "CONAN_DISABLE_DLL_SIGN" in os.environ else True
 
-def vs_get_toolsets(compiler_version):
-    return visual_toolsets if not visual_toolsets is None else visual_default_toolsets.get(compiler_version)
-    
 def filter_libcxx(builds):
     result = []
     for settings, options, env_vars, build_requires, reference in builds:
         if settings["compiler.libcxx"] == "libstdc++11":
             result.append([settings, options, env_vars, build_requires, reference])
+    return result
+
+def add_dll_sign(builds):
+    result = []
+    for settings, options, env_vars, build_requires, reference in builds:
+        options = deepcopy(options)
+        options["openssl:dll_sign"] = dll_sign
+        result.append([settings, options, env_vars, build_requires, reference])
     return result
     
 if __name__ == "__main__":
@@ -30,6 +35,8 @@ if __name__ == "__main__":
     builder.add_common_builds(pure_c=False)
     # Adjusting build configurations
     builds = builder.items
+    if platform.system() == "Windows":
+        builds = add_dll_sign(builds)
     if platform.system() == "Linux":
         builds = filter_libcxx(builds)
     # Replace build configurations
