@@ -49,7 +49,7 @@ class PocoConan(ConanFile):
             cmake.definitions["CMAKE_POSITION_INDEPENDENT_CODE:BOOL"] = "ON"
         if self.settings.os == "Windows" and self.settings.compiler == "Visual Studio":
             cmake.definitions["POCO_MT"] = "OFF"
-            cmake.definitions["ENABLE_MSVC_MP"] = "OFF"
+            cmake.definitions["ENABLE_MSVC_MP"] = "ON"
         cmake.definitions["POCO_STATIC:BOOL"] = "ON"
         cmake.definitions["DISABLE_CPP14:BOOL"] = "ON"
         cmake.definitions["POCO_UNBUNDLED:BOOL"] = "ON"
