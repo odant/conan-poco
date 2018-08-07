@@ -47,12 +47,9 @@ class PocoConan(ConanFile):
         cmake.definitions["CMAKE_INSTALL_PREFIX:STRING"] = self.package_folder.replace("\\", "/")
         if self.settings.os != "Windows":
             cmake.definitions["CMAKE_POSITION_INDEPENDENT_CODE:BOOL"] = "ON"
-        if self.settings.os == "Windows":
-            cmake.definitions["CMAKE_C_FLAGS"] = "-D_WIN32_WINNT=0x0600 -DNTDDI_VERSION=0x06000000"
-            cmake.definitions["CMAKE_CXX_FLAGS"] = "-D_WIN32_WINNT=0x0600 -DNTDDI_VERSION=0x06000000"
-            if self.settings.compiler == "Visual Studio":
-                cmake.definitions["POCO_MT"] = "OFF"
-                cmake.definitions["ENABLE_MSVC_MP"] = "ON"
+        if self.settings.os == "Windows" and self.settings.compiler == "Visual Studio":
+            cmake.definitions["POCO_MT"] = "OFF"
+            cmake.definitions["ENABLE_MSVC_MP"] = "ON"
         cmake.definitions["POCO_STATIC:BOOL"] = "ON"
         cmake.definitions["DISABLE_CPP14:BOOL"] = "ON"
         cmake.definitions["POCO_UNBUNDLED:BOOL"] = "ON"
