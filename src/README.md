@@ -1,18 +1,14 @@
-POCO C++ Libraries
-==================
-
-Build Status
-------------
-
-- Travis: [![Travis Build Status](https://travis-ci.org/pocoproject/poco.png?branch=master)](https://travis-ci.org/pocoproject/poco)
-- AppVeyor: [![Build status](https://ci.appveyor.com/api/projects/status/7iyrx3f233s3akae/branch/master?svg=true)](https://ci.appveyor.com/project/obiltschnig/poco/branch/master)
-- [![CII Best Practices](https://bestpractices.coreinfrastructure.org/projects/370/badge)](https://bestpractices.coreinfrastructure.org/projects/370)
-
-
 ![alt text][logo]
 
-POrtable COmponents C++ Libraries are:
---------------------------------------
+
+[![Travis Build Status](https://travis-ci.org/pocoproject/poco.png?branch=master)](https://travis-ci.org/pocoproject/poco)
+[![Build status](https://ci.appveyor.com/api/projects/status/7iyrx3f233s3akae/branch/master?svg=true)](https://ci.appveyor.com/project/obiltschnig/poco/branch/master)
+[![CII Best Practices](https://bestpractices.coreinfrastructure.org/projects/370/badge)](https://bestpractices.coreinfrastructure.org/projects/370)
+
+
+POCO (Portable Components) C++ Libraries are:
+---------------------------------------------
+
 - A collection of C++ class libraries, conceptually similar to the Java Class Library, the .NET Framework or Apple’s Cocoa.
 - Focused on solutions to frequently-encountered practical problems.
 - Focused on ‘internet-age’ network-centric applications.
@@ -20,6 +16,8 @@ POrtable COmponents C++ Libraries are:
 - Based on and complementing the C++ Standard Library/STL.
 - Highly portable and available on many different platforms, from embedded to server.
 - Open Source, licensed under the [Boost Software License](https://spdx.org/licenses/BSL-1.0).
+
+![alt text][overview]
 
 ----
 To start using POCO, see the [Guided Tour](https://pocoproject.org/docs/00100-GuidedTour.html)
@@ -36,4 +34,5 @@ In regards to Boost, in spite of some functional overlapping,
 POCO is best thought of as a Boost complement (rather than replacement).
 Side-by-side use of Boost and POCO is a very common occurrence.
 
-[logo]: https://raw.githubusercontent.com/pocoproject/poco/develop/doc/poco.png "Poco Layout"
+[overview]: doc/images/overview.png "Poco Overview"
+[logo]: doc/images/logo.png "Poco Logo"

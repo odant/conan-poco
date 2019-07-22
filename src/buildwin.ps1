@@ -4,7 +4,7 @@
 # Usage:
 # ------
 # buildwin.ps1 [-poco_base    dir]
-#              [-vs_version   150 | 140 | 120 | 110 | 100 | 90]
+#              [-vs_version   160 | 150 | 140 | 120 | 110 | 100 | 90]
 #              [-action       build | rebuild | clean]
 #              [-linkmode     shared | static_mt | static_md | all]
 #              [-config       release | debug | both]
@@ -12,7 +12,7 @@
 #              [-samples]
 #              [-tests]
 #              [-omit         "Lib1X;LibY;LibZ;..."]
-#              [-tool         msbuild | devenv | vcexpress | wdexpress]
+#              [-tool         msbuild | devenv]
 #              [-openssl_base dir]
 #              [-mysql_base   dir]
 
@@ -23,7 +23,7 @@ Param
   [string] $poco_base,
 
   [Parameter()]
-  [ValidateSet(90, 100, 110, 120, 140, 150)]
+  [ValidateSet(90, 100, 110, 120, 140, 150, 160)]
   [int] $vs_version,
 
   [Parameter()]
@@ -41,13 +41,13 @@ Param
   [Parameter()]
   [ValidateSet('Win32', 'x64', 'WinCE', 'WEC2013')]
   [string] $platform = 'x64',
-  
+
   [switch] $tests = $false,
   [switch] $samples = $false,
   [string] $omit,
-  
+
   [Parameter()]
-  [ValidateSet('msbuild', 'devenv', 'vcexpress', 'wdexpress')]
+  [ValidateSet('msbuild', 'devenv')]
   [string] $tool = 'msbuild',
 
   [Parameter()]
@@ -62,7 +62,7 @@ Param
 
 function Add-Env-Var([string] $lib, [string] $var)
 {
-  if ((${Env:$var} -eq $null) -or (-not ${Env:$var}.Contains(${Env:$lib_$var"})))
+  if ((${Env:$var} -eq $null) -or (-not ${Env:$var}.Contains(${Env:$lib_$var})))
   {
     $libvar = "$lib" + "_" + "$var"
     $envvar = [Environment]::GetEnvironmentVariable($libvar, "Process")
@@ -78,7 +78,8 @@ function Set-Environment
 
   if ($vs_version -eq 0)
   {
-    if     ($Env:VS150COMNTOOLS -ne '') { $script:vs_version = 150 }
+    if     ($Env:VS160COMNTOOLS -ne '') { $script:vs_version = 160 }
+    elseif ($Env:VS150COMNTOOLS -ne '') { $script:vs_version = 150 }
     elseif ($Env:VS140COMNTOOLS -ne '') { $script:vs_version = 140 }
     elseif ($Env:VS120COMNTOOLS -ne '') { $script:vs_version = 120 }
     elseif ($Env:VS110COMNTOOLS -ne '') { $script:vs_version = 110 }
@@ -96,8 +97,7 @@ function Set-Environment
 
   if ($openssl_base -eq '')
   {
-    if ($platform -eq 'x64') { $script:openssl_base = 'C:\OpenSSL-Win64' }
-    else                     { $script:openssl_base = 'C:\OpenSSL-Win32' }
+    $script:openssl_base = '$poco_base\openssl'
   }
   
   $Env:OPENSSL_DIR     = "$openssl_base"
@@ -119,21 +119,22 @@ function Set-Environment
   $vsdir = (Get-Item Env:$vsct).Value
   $Command = ''
   $CommandArg = ''
-  if ($platform -eq 'x64')
+  if ($platform -eq 'x64') { $CommandArg = "amd64" }
+  else                     { $CommandArg = "x86" }
+  if ($vs_version -ge 160)
   {
-    $CommandArg = "amd64"
+    $Command = "$($vsdir)\..\..\VC\Auxiliary\Build\vcvarsall.bat"
+    $script:msbuild_exe = "$($vsdir)\..\..\MSBuild\Current\Bin\MSBuild.exe"
+  }
+  elseif ($vs_version -ge 150)
+  {
+    $Command = "$($vsdir)\..\..\VC\Auxiliary\Build\vcvarsall.bat"
+    $script:msbuild_exe = "$($vsdir)\..\..\MSBuild\15.0\Bin\MSBuild.exe"
   }
   else
   {
-    $CommandArg = "x86"
-  }
-  if ($vs_version -ge 150)
-  {
-    $Command = "$($vsdir)..\..\VC\Auxiliary\Build\vcvarsall.bat"
-  }
-  else
-  {
-    $Command = "$($vsdir)..\..\VC\vcvarsall.bat"
+    $Command = "$($vsdir)\..\..\VC\vcvarsall.bat"
+    $script:msbuild_exe = "MSBuild.exe"
   }
   $tempFile = [IO.Path]::GetTempFileName()
   cmd /c " `"$Command`" $CommandArg && set > `"$tempFile`" "
@@ -154,7 +155,7 @@ function Process-Input
     Write-Host 'Usage:'
     Write-Host '------'
     Write-Host 'buildwin.ps1 [-poco_base    dir]'
-    Write-Host '             [-vs_version   150 | 140 | 120 | 110 | 100 | 90]'
+    Write-Host '             [-vs_version   160 | 150 | 140 | 120 | 110 | 100 | 90]'
     Write-Host '             [-action       build | rebuild | clean]'
     Write-Host '             [-linkmode     shared | static_mt | static_md | all]'
     Write-Host '             [-config       release | debug | both]'
@@ -162,14 +163,14 @@ function Process-Input
     Write-Host '             [-samples]'
     Write-Host '             [-tests]'
     Write-Host '             [-omit         "Lib1X;LibY;LibZ;..."]'
-    Write-Host '             [-tool         msbuild | devenv | vcexpress | wdexpress]'
+    Write-Host '             [-tool         msbuild | devenv]'
     Write-Host '             [-openssl_base dir]'
     Write-Host '             [-mysql_base   dir]'
 
     Exit
   }
   else
-  { 
+  {
     Set-Environment
 
     Write-Host "Build configuration:"
@@ -206,9 +207,22 @@ function Process-Input
 }
 
 
+function Exec-MSBuild([string] $vsProject, [string] $projectConfig)
+{
+  if (!(Test-Path -Path $vsProject -PathType leaf)) {
+    Write-Host "Project $vsProject not found, skipping."
+    return
+  }
+
+  $cmd = "&`"$script:msbuild_exe`" $vsProject /t:$action /p:Configuration=$projectConfig /p:BuildProjectReferences=false /p:Platform=$platform /p:useenv=true"
+  Write-Host $cmd
+  Invoke-Expression $cmd
+  if ($LastExitCode -ne 0) { Exit $LastExitCode }
+}
+
+
 function Build-MSBuild([string] $vsProject)
 {
-  Write-Host "Build-MSBuild ==> $vsProject"
   if ($linkmode -eq 'all')
   {
     $linkModeArr = 'shared', 'static_mt', 'static_md'
@@ -220,16 +234,12 @@ function Build-MSBuild([string] $vsProject)
         $configArr = 'release', 'debug'
         foreach ($cfg in $configArr)
         {
-          $projectConfig = "$cfg"
-          $projectConfig += "_$mode"
-          Invoke-Expression "msbuild $vsProject /t:$action /p:Configuration=$projectConfig /p:Platform=$platform /p:useenv=true"
+          Exec-MSBuild $vsProject "$($cfg)_$($mode)"
         }
       }
       else #config
       {
-        $projectConfig = "$config"
-        $projectConfig += "_$mode"
-        Invoke-Expression "msbuild $vsProject /t:$action /p:Configuration=$projectConfig /p:Platform=$platform /p:useenv=true"
+        Exec-MSBuild $vsProject "$($config)_$($mode)"
       }
     }
   }
@@ -240,18 +250,22 @@ function Build-MSBuild([string] $vsProject)
       $configArr = 'release', 'debug'
       foreach ($cfg in $configArr)
       {
-        $projectConfig = "$cfg"
-        $projectConfig += "_$linkmode"
-        Invoke-Expression "msbuild $vsProject /t:$action /p:Configuration=$projectConfig /p:Platform=$platform /p:useenv=true"
+        Exec-MSBuild $vsProject "$($cfg)_$($linkmode)"
       }
     }
     else #config
     {
-      $projectConfig = "$config"
-      $projectConfig += "_$linkmode"
-      Invoke-Expression "msbuild $vsProject /t:$action /p:Configuration=$projectConfig /p:Platform=$platform /p:useenv=true"
+      Exec-MSBuild $vsProject "$($config)_$($linkmode)"
     }
   }
+}
+
+
+function Exec-Devenv([string] $projectConfig, [string] $vsProject)
+{
+  $cmd = "devenv /useenv /$action $projectConfig $vsProject"
+  Write-Host $cmd
+  Invoke-Expression $cmd
 }
 
 
@@ -268,16 +282,12 @@ function Build-Devenv([string] $vsProject)
         $configArr = 'release', 'debug'
         foreach ($cfg in $configArr)
         {
-          $projectConfig = "$cfg"
-          $projectConfig += "_$mode"
-          Invoke-Expression "devenv /useenv /$action $projectConfig $vsProject"
+          Exec-Devenv "$($cfg)_$($mode)" $vsProject
         }
       }
       else #config
       {
-        $projectConfig = "$config"
-        $projectConfig += "_$mode"
-        Invoke-Expression "devenv /useenv /$action $projectConfig $vsProject"
+        Exec-Devenv "$($config)_$($mode)" $vsProject
       }
     }
   }
@@ -288,21 +298,14 @@ function Build-Devenv([string] $vsProject)
       $configArr = 'release', 'debug'
       foreach ($cfg in $configArr)
       {
-        $projectConfig = "$cfg"
-        $projectConfig += "_$linkmode"
-        Invoke-Expression "devenv /useenv /$action $projectConfig $vsProject"
+        Exec-Devenv "$($cfg)_$($linkmode)" $vsProject
       }
     }
     else #config
     {
-      $projectConfig = "$config"
-      $projectConfig += "_$linkmode"
-      Invoke-Expression "devenv /useenv /$action $projectConfig $vsProject"
+      Exec-Devenv "$($config)_$($linkmode)" $vsProject
     }
   }
-  $projectConfig = "$config"
-  $projectConfig += "_$linkmode"
-  Invoke-Expression "devenv /useenv /$action $projectConfig $vsProject"
 }
 
 

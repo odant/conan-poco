@@ -17,17 +17,30 @@ if (WIN32)
     get_filename_component(sdk_dir "[HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Microsoft SDKs\\Windows;CurrentInstallFolder]" REALPATH)
     get_filename_component(kit_dir "[HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows Kits\\Installed Roots;KitsRoot]" REALPATH)
     get_filename_component(kit81_dir "[HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows Kits\\Installed Roots;KitsRoot81]" REALPATH)
+    get_filename_component(kit10_dir "[HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows Kits\\Installed Roots;KitsRoot10]" REALPATH)
+    get_filename_component(kit10wow_dir "[HKEY_LOCAL_MACHINE\\SOFTWARE\\WOW6432Node\\Microsoft\\Windows Kits\\Installed Roots;KitsRoot10]" REALPATH)
+    file(GLOB kit10_list ${kit10_dir}/bin/10.* ${kit10wow_dir}/bin/10.*)
     if (X64)
       set(sdk_bindir "${sdk_dir}/bin/x64")
       set(kit_bindir "${kit_dir}/bin/x64")
       set(kit81_bindir "${kit81_dir}/bin/x64")
+      foreach (tmp_elem ${kit10_list})
+        if (IS_DIRECTORY ${tmp_elem})
+		  list(APPEND kit10_bindir "${tmp_elem}/x64")
+        endif()
+      endforeach()
     else (X64)
       set(sdk_bindir "${sdk_dir}/bin")
       set(kit_bindir "${kit_dir}/bin/x86")
       set(kit81_bindir "${kit81_dir}/bin/x86")
+      foreach (tmp_elem ${kit10_list})
+        if (IS_DIRECTORY ${tmp_elem})
+		  list(APPEND kit10_bindir "${tmp_elem}/x86")
+        endif()
+      endforeach()
     endif (X64)
   endif ()
-  find_program(CMAKE_MC_COMPILER mc.exe HINTS "${sdk_bindir}" "${kit_bindir}" "${kit81_bindir}"
+  find_program(CMAKE_MC_COMPILER mc.exe HINTS "${sdk_bindir}" "${kit_bindir}" "${kit81_bindir}" ${kit10_bindir}
     DOC "path to message compiler")
   if (NOT CMAKE_MC_COMPILER)
     message(FATAL_ERROR "message compiler not found: required to build")
@@ -226,14 +239,14 @@ install(
     EXPORT "${target_name}Targets"
     FILE "${PROJECT_NAME}${target_name}Targets.cmake"
     NAMESPACE "${PROJECT_NAME}::"
-    DESTINATION "lib/cmake/${PROJECT_NAME}"
+    DESTINATION "lib${LIB_SUFFIX}/cmake/${PROJECT_NAME}"
     )
 
 install(
     FILES
         "${CMAKE_BINARY_DIR}/${PROJECT_NAME}/${PROJECT_NAME}${target_name}Config.cmake"
         "${CMAKE_BINARY_DIR}/${PROJECT_NAME}/${PROJECT_NAME}${target_name}ConfigVersion.cmake"
-    DESTINATION "lib/cmake/${PROJECT_NAME}"
+    DESTINATION "lib${LIB_SUFFIX}/cmake/${PROJECT_NAME}"
     COMPONENT Devel
     )
 
@@ -267,7 +280,7 @@ if (MSVC)
 # install the targets pdb
   POCO_INSTALL_PDB(${target_name})
 endif()
-  
+
 endmacro()
 
 #  POCO_INSTALL_PDB - Install the given target's companion pdb file (if present)
