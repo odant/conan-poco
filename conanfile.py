@@ -8,7 +8,7 @@ import os
 
 class PocoConan(ConanFile):
     name = "poco"
-    version = "1.9.4+0"
+    version = "1.9.4+1"
     license = "Boost Software License Version 1.0. https://pocoproject.org/license.html"
     description = "Modern, powerful open source C++ class libraries for building network- and internet-based applications that run on desktop, server, mobile and embedded systems."
     url = "https://github.com/odant/conan-poco"
@@ -22,6 +22,9 @@ class PocoConan(ConanFile):
     exports_sources = "src/*", "CMakeLists.txt", "FindPoco.cmake"
     no_copy_source = True
     build_policy = "missing"
+    #
+    _openssl_version = "1.1.1d+0"
+    _openssl_channel = "stable"
 
     def configure(self):
         # Only C++11
@@ -31,7 +34,7 @@ class PocoConan(ConanFile):
     def requirements(self):
         self.requires("zlib/[>=1.2.11]@%s/stable" % self.user)
         self.requires("pcre/[>=8.43]@%s/stable" % self.user)
-        self.requires("openssl/1.1.0l+0@%s/stable" % self.user)
+        self.requires("openssl/%s@%s/%s" % (self._openssl_version, self.user, self._openssl_channel))
 
     def source(self):
         # Disable install compiler runtime
