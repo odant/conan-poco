@@ -9,23 +9,53 @@ find_path(Poco_INCLUDE_DIR
     NO_DEFAULT_PATH
 )
 
+function(from_hex HEX DEC)
+    string(TOUPPER "${HEX}" HEX)
+    set(_res 0)
+    string(LENGTH "${HEX}" _strlen)
+
+    while(_strlen GREATER 0)
+        math(EXPR _res "${_res} * 16")
+        string(SUBSTRING "${HEX}" 0 1 NIBBLE)
+        string(SUBSTRING "${HEX}" 1 -1 HEX)
+        if(NIBBLE STREQUAL "A")
+            math(EXPR _res "${_res} + 10")
+        elseif(NIBBLE STREQUAL "B")
+            math(EXPR _res "${_res} + 11")
+        elseif(NIBBLE STREQUAL "C")
+            math(EXPR _res "${_res} + 12")
+        elseif(NIBBLE STREQUAL "D")
+            math(EXPR _res "${_res} + 13")
+        elseif(NIBBLE STREQUAL "E")
+            math(EXPR _res "${_res} + 14")
+        elseif(NIBBLE STREQUAL "F")
+            math(EXPR _res "${_res} + 15")
+        else()
+            math(EXPR _res "${_res} + ${NIBBLE}")
+        endif()
+
+        string(LENGTH "${HEX}" _strlen)
+    endwhile()
+    set(${DEC} ${_res} PARENT_SCOPE)
+endfunction()
+
 # Parse version
 if(Poco_INCLUDE_DIR AND EXISTS ${Poco_INCLUDE_DIR}/Poco/Version.h)
 
-    file(STRINGS ${Poco_INCLUDE_DIR}/Poco/Version.h DEFINE_POCO_VERSION REGEX "^#define POCO_VERSION +0x[0-9]+..$")
+    file(STRINGS ${Poco_INCLUDE_DIR}/Poco/Version.h DEFINE_POCO_VERSION REGEX "^#define POCO_VERSION +0x[0-9a-fA-F]+..$")
+    
+    string(REGEX REPLACE "^.*POCO_VERSION +0x([0-9a-fA-F][0-9a-fA-F]).*$" "\\1" Poco_VERSION_MAJOR "${DEFINE_POCO_VERSION}")
+    from_hex(${Poco_VERSION_MAJOR} Poco_VERSION_MAJOR)
 
-    string(REGEX REPLACE "^.*POCO_VERSION +0x([0-9][0-9]).*$" "\\1" Poco_VERSION_MAJOR ${DEFINE_POCO_VERSION})
-    string(REGEX REPLACE "^(0)([0-9])" "\\2" Poco_VERSION_MAJOR ${Poco_VERSION_MAJOR})
+    string(REGEX REPLACE "^.*POCO_VERSION +0x[0-9a-fA-F][0-9a-fA-F]([0-9a-fA-F][0-9a-fA-F]).*$" "\\1" Poco_VERSION_MINOR "${DEFINE_POCO_VERSION}")
+    from_hex(${Poco_VERSION_MINOR} Poco_VERSION_MINOR)
 
-    string(REGEX REPLACE "^.*POCO_VERSION +0x[0-9][0-9]([0-9][0-9]).*$" "\\1" Poco_VERSION_MINOR ${DEFINE_POCO_VERSION})
-    string(REGEX REPLACE "^(0)([0-9])" "\\2" Poco_VERSION_MINOR ${Poco_VERSION_MINOR})
-
-    string(REGEX REPLACE "^.*POCO_VERSION +0x[0-9][0-9][0-9][0-9]([0-9][0-9]).*$" "\\1" Poco_VERSION_PATCH ${DEFINE_POCO_VERSION})
-    string(REGEX REPLACE "^(0)([0-9])" "\\2" Poco_VERSION_PATCH ${Poco_VERSION_PATCH})
+    string(REGEX REPLACE "^.*POCO_VERSION +0x[0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]([0-9a-fA-F][0-9a-fA-F]).*$" "\\1" Poco_VERSION_PATCH ${DEFINE_POCO_VERSION})
+    from_hex(${Poco_VERSION_PATCH} Poco_VERSION_PATCH)
 
     set(Poco_VERSION_STRING "${Poco_VERSION_MAJOR}.${Poco_VERSION_MINOR}.${Poco_VERSION_PATCH}")
 
-    string(REGEX REPLACE "^.*POCO_VERSION +0x[0-9][0-9][0-9][0-9][0-9][0-9](..)$" "\\1" Poco_VERSION_PRERELEASE ${DEFINE_POCO_VERSION})
+    string(REGEX REPLACE "^.*POCO_VERSION +0x[0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F](..)$" "\\1" Poco_VERSION_PRERELEASE ${DEFINE_POCO_VERSION})
     if(NOT ${Poco_VERSION_PRERELEASE} STREQUAL "00")
         set(Poco_VERSION_STRING "${Poco_VERSION_STRING}.${Poco_VERSION_PRERELEASE}")
     endif()
