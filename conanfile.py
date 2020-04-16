@@ -49,7 +49,7 @@ class PocoConan(ConanFile):
         if self.settings.os == "Windows" and self.settings.compiler == "Visual Studio":
             cmake.definitions["POCO_MT"] = "OFF"
             cmake.definitions["ENABLE_MSVC_MP"] = "OFF"
-        cmake.definitions["POCO_STATIC:BOOL"] = "ON"
+        cmake.definitions["BUILD_SHARED_LIBS:BOOL"] = "OFF"
         cmake.definitions["DISABLE_CPP14:BOOL"] = "OFF"
         cmake.definitions["DISABLE_CPP11:BOOL"] = "OFF"
         cmake.definitions["POCO_UNBUNDLED:BOOL"] = "ON"
