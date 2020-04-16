@@ -50,7 +50,8 @@ class PocoConan(ConanFile):
             cmake.definitions["POCO_MT"] = "OFF"
             cmake.definitions["ENABLE_MSVC_MP"] = "OFF"
         cmake.definitions["POCO_STATIC:BOOL"] = "ON"
-        cmake.definitions["DISABLE_CPP14:BOOL"] = "ON"
+        cmake.definitions["DISABLE_CPP14:BOOL"] = "OFF"
+        cmake.definitions["DISABLE_CPP11:BOOL"] = "OFF"
         cmake.definitions["POCO_UNBUNDLED:BOOL"] = "ON"
         #
         cmake.definitions["ENABLE_XML:BOOL"] = "OFF"
