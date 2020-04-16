@@ -84,22 +84,13 @@ class PocoConan(ConanFile):
         # CMake script
         self.copy("FindPoco.cmake", dst=".", src=".", keep_path=False)
         # PDB
-        self.copy("*Crypto.pdb", dst="bin", keep_path=False)
-        self.copy("*Foundation.pdb", dst="bin", keep_path=False)
-        self.copy("*Net.pdb", dst="bin", keep_path=False)
-        self.copy("*NetSSL.pdb", dst="bin", keep_path=False)
-        self.copy("*Util.pdb", dst="bin", keep_path=False)
+        if self.settings.os == "Windows":
+            self.copy("*.pdb", dst="bin", keep_path=False)
         
     def package_info(self):
         # Libraries
-        self.cpp_info.libs = ["PocoNetSSL", "PocoNet", "PocoCrypto", "PocoUtil", "PocoFoundation"]
-        suffix = "md" if self.settings.os == "Windows" else ""
-        if self.settings.build_type == "Debug":
-            suffix += "d"
-        for i, _ in enumerate(self.cpp_info.libs):
-            self.cpp_info.libs[i] += suffix
+        self.cpp_info.libs = tools.collect_libs(self)
         # Defines
-        self.cpp_info.defines = ["POCO_DISABLE_CPP14"]
         if self.settings.os == "Windows":
             self.cpp_info.defines.extend(["POCO_STATIC", "POCO_NO_AUTOMATIC_LIBS"])
             if self.settings.compiler == "Visual Studio":
