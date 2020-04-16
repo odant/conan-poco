@@ -39,6 +39,9 @@ class PocoConan(ConanFile):
     def source(self):
         # Disable install compiler runtime
         tools.replace_in_file(os.path.join("src", "CMakeLists.txt"), "include(InstallRequiredSystemLibraries)", "")
+        tools.replace_in_file(os.path.join("src", "Foundation", "CMakeLists.txt"), "Pcre::Pcre", "PCRE::PCRE")
+        
+        
 
     def build(self):
         cmake = CMake(self)
