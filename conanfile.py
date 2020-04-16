@@ -55,7 +55,8 @@ class PocoConan(ConanFile):
         cmake.definitions["POCO_UNBUNDLED:BOOL"] = "ON"
         #
         cmake.definitions["ENABLE_XML:BOOL"] = "OFF"
-        cmake.definitions["ENABLE_JSON:BOOL"] = "OFF"
+        cmake.definitions["ENABLE_JSON:BOOL"] = "ON"
+        cmake.definitions["ENABLE_JWT:BOOL"] = "ON"
         cmake.definitions["ENABLE_MONGODB:BOOL"] = "OFF"
         cmake.definitions["ENABLE_REDIS:BOOL"] = "OFF"
         cmake.definitions["ENABLE_PDF:BOOL"] = "OFF"
