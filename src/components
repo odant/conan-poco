@@ -1,5 +1,4 @@
 CppUnit
-CppUnit/WinTestRunner
 Foundation
 Encodings
 XML
@@ -13,9 +12,11 @@ Data
 Data/SQLite
 Data/ODBC
 Data/MySQL
+Data/PostgreSQL
 Zip
 PageCompiler
 PageCompiler/File2Page
+JWT
 PDF
 CppParser
 MongoDB
