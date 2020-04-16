@@ -97,6 +97,17 @@ find_library(Poco_NetSSL_LIBRARY
     NO_DEFAULT_PATH
 )
 
+find_library(Poco_JSON_LIBRARY
+    NAMES PocoJSON PocoJSONd PocoJSONmd PocoJSONmdd
+    PATHS ${CONAN_LIB_DIRS_POCO}
+    NO_DEFAULT_PATH
+)
+
+find_library(Poco_JWT_LIBRARY
+    NAMES PocoJWT PocoJWTd PocoJWTmd PocoJWTmdd
+    PATHS ${CONAN_LIB_DIRS_POCO}
+    NO_DEFAULT_PATH
+)
 
 include(FindPackageHandleStandardArgs)
 find_package_handle_standard_args(Poco
@@ -107,6 +118,8 @@ find_package_handle_standard_args(Poco
         Poco_Crypto_LIBRARY
         Poco_Net_LIBRARY
         Poco_NetSSL_LIBRARY
+        Poco_JSON_LIBRARY
+        Poco_JWT_LIBRARY
     VERSION_VAR
         Poco_VERSION_STRING
 )
@@ -122,6 +135,8 @@ if(Poco_FOUND)
         Poco_Crypto_LIBRARY
         Poco_Net_LIBRARY
         Poco_NetSSL_LIBRARY
+        Poco_JSON_LIBRARY
+        Poco_JWT_LIBRARY
     )
     mark_as_advanced(
         Poco_INCLUDE_DIR
@@ -130,6 +145,8 @@ if(Poco_FOUND)
         Poco_Crypto_LIBRARY
         Poco_Net_LIBRARY
         Poco_NetSSL_LIBRARY
+        Poco_JSON_LIBRARY
+        Poco_JWT_LIBRARY
     )
     set(Poco_DEFINITIONS ${CONAN_COMPILE_DEFINITIONS_POCO}) # Add defines from package_info
 
@@ -201,6 +218,24 @@ if(Poco_FOUND)
 
     endif()
 
+    if(NOT TARGET Poco::JSON)
+
+        add_library(Poco::JSON UNKNOWN IMPORTED)
+        set_target_properties(Poco::JSON PROPERTIES
+            IMPORTED_LOCATION ${Poco_JSON_LIBRARY}
+        )
+
+    endif()
+
+    if(NOT TARGET Poco::JWT)
+
+        add_library(Poco::JWT UNKNOWN IMPORTED)
+        set_target_properties(Poco::JWT PROPERTIES
+            IMPORTED_LOCATION ${Poco_JSON_LIBRARY}
+        )
+
+    endif()
+
     if(NOT TARGET Poco::NetSSL)
 
         add_library(Poco::NetSSL UNKNOWN IMPORTED)
@@ -209,9 +244,10 @@ if(Poco_FOUND)
         )
 
         set_property(TARGET Poco::NetSSL
-            APPEND PROPERTY INTERFACE_LINK_LIBRARIES Poco::Net Poco::Util Poco::Crypto
+            APPEND PROPERTY INTERFACE_LINK_LIBRARIES Poco::Net Poco::Util Poco::Crypto Poco::JSON
         )
 
     endif()
+
 
 endif()
