@@ -231,7 +231,7 @@ if(Poco_FOUND)
 
         add_library(Poco::JWT UNKNOWN IMPORTED)
         set_target_properties(Poco::JWT PROPERTIES
-            IMPORTED_LOCATION ${Poco_JSON_LIBRARY}
+            IMPORTED_LOCATION ${Poco_JWT_LIBRARY}
         )
 
     endif()
