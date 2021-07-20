@@ -8,7 +8,7 @@ import os
 
 class PocoConan(ConanFile):
     name = "poco"
-    version = "1.10.1+2"
+    version = "1.11.0+0"
     license = "Boost Software License Version 1.0. https://pocoproject.org/license.html"
     description = "Modern, powerful open source C++ class libraries for building network- and internet-based applications that run on desktop, server, mobile and embedded systems."
     url = "https://github.com/odant/conan-poco"
@@ -23,7 +23,7 @@ class PocoConan(ConanFile):
     no_copy_source = True
     build_policy = "missing"
     #
-    _openssl_version = "1.1.1g+1"
+    _openssl_version = "1.1.1k+0"
     _openssl_channel = "stable"
 
     def configure(self):
@@ -57,6 +57,10 @@ class PocoConan(ConanFile):
         cmake.definitions["DISABLE_CPP11:BOOL"] = "OFF"
         cmake.definitions["POCO_UNBUNDLED:BOOL"] = "ON"
         #
+        cmake.definitions["ENABLE_ACTIVERECORD:BOOL"] = "OFF"
+        cmake.definitions["ENABLE_ACTIVERECORD_COMPILER:BOOL"] = "OFF"
+        cmake.definitions["ENABLE_ENCODINGS:BOOL"] = "ON"
+        cmake.definitions["ENABLE_ENCODINGS_COMPILER:BOOL"] = "OFF"
         cmake.definitions["ENABLE_XML:BOOL"] = "OFF"
         cmake.definitions["ENABLE_JSON:BOOL"] = "ON"
         cmake.definitions["ENABLE_JWT:BOOL"] = "ON"
