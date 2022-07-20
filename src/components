@@ -7,7 +7,7 @@ Util
 Net
 Crypto
 NetSSL_OpenSSL
-JWT
+NetSSL_Win
 Data
 Data/SQLite
 Data/ODBC
@@ -16,7 +16,12 @@ Data/PostgreSQL
 Zip
 PageCompiler
 PageCompiler/File2Page
+JWT
+PDF
+CppParser
 MongoDB
 Redis
 ActiveRecord
 ActiveRecord/Compiler
+PocoDoc
+ProGen
