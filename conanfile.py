@@ -23,7 +23,7 @@ class PocoConan(ConanFile):
     no_copy_source = True
     build_policy = "missing"
     #
-    _openssl_version = "1.1.1n+0"
+    _openssl_version = "3.0.7+2"
     _openssl_channel = "stable"
 
     def configure(self):
@@ -33,13 +33,13 @@ class PocoConan(ConanFile):
 
     def requirements(self):
         self.requires("zlib/[>=1.2.11]@%s/stable" % self.user)
-        self.requires("pcre/[>=8.43]@%s/stable" % self.user)
+        self.requires("pcre2/[>=10.40]@%s/stable" % self.user)
         self.requires("openssl/%s@%s/%s" % (self._openssl_version, self.user, self._openssl_channel))
 
     def source(self):
         # Disable install compiler runtime
         tools.replace_in_file(os.path.join("src", "CMakeLists.txt"), "include(InstallRequiredSystemLibraries)", "")
-        tools.replace_in_file(os.path.join("src", "Foundation", "CMakeLists.txt"), "Pcre::Pcre", "PCRE::PCRE")
+        tools.replace_in_file(os.path.join("src", "Foundation", "CMakeLists.txt"), "Pcre2::Pcre2", "PCRE2::PCRE2")
         
         
 

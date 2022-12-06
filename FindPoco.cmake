@@ -164,9 +164,9 @@ if(Poco_FOUND)
 
         find_dependency(Threads)
         find_dependency(ZLIB)
-        find_dependency(PCRE)
+        find_dependency(PCRE2)
         set_property(TARGET Poco::Foundation
-            APPEND PROPERTY INTERFACE_LINK_LIBRARIES Threads::Threads ZLIB::ZLIB PCRE::PCRE
+            APPEND PROPERTY INTERFACE_LINK_LIBRARIES Threads::Threads ZLIB::ZLIB PCRE2::PCRE2
         )
 
         if(WIN32)
