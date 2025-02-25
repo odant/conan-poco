@@ -22,9 +22,6 @@ class PocoConan(ConanFile):
     exports_sources = "src/*", "CMakeLists.txt", "FindPoco.cmake"
     no_copy_source = True
     build_policy = "missing"
-    #
-    _openssl_version = "3.0.7+2"
-    _openssl_channel = "stable"
 
     def configure(self):
         # Only C++11
@@ -32,9 +29,9 @@ class PocoConan(ConanFile):
             raise Exception("This package is only compatible with libstdc++11")
 
     def requirements(self):
-        self.requires("zlib/[>=1.2.11]@%s/stable" % self.user)
-        self.requires("pcre2/[>=10.40]@%s/stable" % self.user)
-        self.requires("openssl/%s@%s/%s" % (self._openssl_version, self.user, self._openssl_channel))
+        self.requires("zlib/[>=1.3.1]@%s/stable" % self.user)
+        self.requires("pcre2/[>=10.43]@%s/stable" % self.user)
+        self.requires("openssl/[>=3.0.16]@%s/stable" % self.user)
 
     def source(self):
         # Disable install compiler runtime
