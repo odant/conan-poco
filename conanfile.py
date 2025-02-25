@@ -40,8 +40,6 @@ class PocoConan(ConanFile):
         # Disable install compiler runtime
         tools.replace_in_file(os.path.join("src", "CMakeLists.txt"), "include(InstallRequiredSystemLibraries)", "")
         tools.replace_in_file(os.path.join("src", "Foundation", "CMakeLists.txt"), "Pcre2::Pcre2", "PCRE2::PCRE2")
-        
-        
 
     def build(self):
         cmake = CMake(self)
@@ -99,6 +97,11 @@ class PocoConan(ConanFile):
         if self.settings.os == "Windows":
             self.copy("*.pdb", dst="bin", keep_path=False)
         
+    def package_id(self):
+        self.info.requires["zlib"].full_version_mode()
+        self.info.requires["openssl"].full_version_mode()
+        self.info.requires["pcre2"].full_package_mode()
+
     def package_info(self):
         # Libraries
         self.cpp_info.libs = tools.collect_libs(self)
