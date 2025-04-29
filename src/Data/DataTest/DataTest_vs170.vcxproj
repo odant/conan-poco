@@ -77,7 +77,7 @@
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>
     <ProjectName>DataTest</ProjectName>
-    <ProjectGuid>{7BD2F7AA-48F0-4A81-95F8-D1554EA63FD8}</ProjectGuid>
+    <ProjectGuid>{69F3FD2C-EDBF-4ECD-9584-F82DF531D39F}</ProjectGuid>
     <RootNamespace>DataTest</RootNamespace>
     <Keyword>Win32Proj</Keyword>
   </PropertyGroup>
@@ -230,7 +230,7 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
-    <_ProjectFileVersion>17.0.34714.143</_ProjectFileVersion>
+    <_ProjectFileVersion>17.0.35219.272</_ProjectFileVersion>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='debug_shared|ARM64'">PocoDataTestA64d</TargetName>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='debug_static_md|ARM64'">PocoDataTestmdd</TargetName>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='debug_static_mt|ARM64'">PocoDataTestmtd</TargetName>
@@ -869,8 +869,8 @@
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="include\Poco\DataTest\DataTest.h" />
-    <ClInclude Include="include\Poco\DataTest\SQLExecutor.h" />
+    <ClInclude Include="include\Poco\Data\Test\DataTest.h" />
+    <ClInclude Include="include\Poco\Data\Test\SQLExecutor.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\SQLExecutor.cpp">

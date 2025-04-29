@@ -2,17 +2,14 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <Filter Include="Source Files">
-      <UniqueIdentifier>{5a0c244d-4cc0-4a66-8f64-54c36a39a9e0}</UniqueIdentifier>
+      <UniqueIdentifier>{000c9ef3-b713-466a-a0c0-dce4cb7caba8}</UniqueIdentifier>
     </Filter>
     <Filter Include="Header Files">
-      <UniqueIdentifier>{60fe6fcd-cccd-4914-bb23-fb6bbd6c8a57}</UniqueIdentifier>
+      <UniqueIdentifier>{0a3f8398-eddc-4c35-b7d5-3d2e16c95909}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\MongoDBTest.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\MongoDBTestOpMsg.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\MongoDBTestSuite.cpp">
@@ -21,12 +18,12 @@
     <ClCompile Include="src\Driver.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\MongoDBTestOpMsg.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\MongoDBTest.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\MongoDBTestOpMsg.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\MongoDBTestSuite.h">

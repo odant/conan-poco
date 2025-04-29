@@ -2,13 +2,13 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <Filter Include="ODBC">
-      <UniqueIdentifier>{a414528e-316e-4633-a23d-84464ab68d14}</UniqueIdentifier>
+      <UniqueIdentifier>{cfbbf1e4-d74b-4019-bc8a-c4b29aca049b}</UniqueIdentifier>
     </Filter>
     <Filter Include="ODBC\Header Files">
-      <UniqueIdentifier>{940723bd-f1dd-487b-b887-c3796424c101}</UniqueIdentifier>
+      <UniqueIdentifier>{d4e95464-1748-420b-aa8c-bcfd20538d62}</UniqueIdentifier>
     </Filter>
     <Filter Include="ODBC\Source Files">
-      <UniqueIdentifier>{03c28cd4-fde4-4ab0-bd06-fc7edeb8a0c3}</UniqueIdentifier>
+      <UniqueIdentifier>{8ad20958-b280-4e25-859b-74cf1d2e5cb0}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -122,6 +122,12 @@
     <ClCompile Include="src\Utility.cpp">
       <Filter>ODBC\Source Files</Filter>
     </ClCompile>
+	<ClCompile Include="src\Diagnostics.cpp">
+	  <Filter>ODBC\Source Files</Filter>
+	</ClCompile>
+	<ClCompile Include="src\Error.cpp">
+	  <Filter>ODBC\Source Files</Filter>
+	</ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="..\..\DLLVersion.rc" />

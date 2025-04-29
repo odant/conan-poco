@@ -68,7 +68,7 @@ class Data_API RecordSet: private Statement
 	/// a limit for the Statement.
 {
 public:
-	using RowMap = std::map<std::size_t, Row*>;
+	using RowMap = std::map<std::size_t, std::shared_ptr<Row>>;
 	using ConstIterator = const RowIterator;
 	using Iterator = RowIterator;
 
@@ -140,9 +140,8 @@ public:
 		/// execution.
 		/// The number of rows reported is independent of filtering.
 
+	POCO_DEPRECATED("Replaced with subTotalRowCount() and getTotalRowCount()")
 	std::size_t totalRowCount() const;
-		//@ deprecated
-		/// Replaced with subTotalRowCount() and getTotalRowCount().
 
 	std::size_t getTotalRowCount() const;
 		/// Returns the total number of rows in the RecordSet.
@@ -377,27 +376,22 @@ private:
 	const Column<C>& columnImpl(std::size_t pos) const
 		/// Returns the reference to column at specified position.
 	{
-		using T = typename C::value_type;
-		using ExtractionVecPtr = const E*;
-
 		const AbstractExtractionVec& rExtractions = extractions();
 
 		std::size_t s = rExtractions.size();
 		if (0 == s || pos >= s)
 			throw RangeException(Poco::format("Invalid column index: %z", pos));
 
-		ExtractionVecPtr pExtraction = dynamic_cast<ExtractionVecPtr>(rExtractions[pos].get());
-
-		if (pExtraction)
+		auto pExtraction = rExtractions[pos].cast<E>();
+		if (!pExtraction)
 		{
-			return pExtraction->column();
-		}
-		else
-		{
-			throw Poco::BadCastException(Poco::format("Type cast failed!\nColumn: %z\nTarget type:\t%s",
+			throw Poco::BadCastException(Poco::format("Type dynamic cast failed!\n"
+				"Column: %z\nConversion:\n%s\n%s",
 				pos,
-				std::string(typeid(T).name())));
+				Poco::demangle(typeid(typename E::ValType).name()),
+				rExtractions[pos]->getHeldType()));
 		}
+		return pExtraction->column();
 	}
 
 	bool isAllowed(std::size_t row) const;

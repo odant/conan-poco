@@ -459,8 +459,6 @@
 			<File
 				RelativePath=".\src\MongoDBTest.h"/>
 			<File
-				RelativePath=".\src\MongoDBTestOpMsg.h"/>
-			<File
 				RelativePath=".\src\MongoDBTestSuite.h"/>
 		</Filter>
 	</Files>
