@@ -9,7 +9,7 @@ import os, re
 
 class PocoConan(ConanFile):
     name = "poco"
-    version = "1.13.3+2"
+    version = "1.14.1+0"
     license = "Boost Software License Version 1.0. https://pocoproject.org/license.html"
     description = "Modern, powerful open source C++ class libraries for building network- and internet-based applications that run on desktop, server, mobile and embedded systems."
     url = "https://github.com/odant/conan-poco"
@@ -53,6 +53,7 @@ class PocoConan(ConanFile):
         self.requires("zlib-ng/[>=2.2.4]@%s/stable" % self.user)
         self.requires("pcre2/[>=10.43]@%s/stable" % self.user)
         self.requires("openssl/[>=3.0.16]@%s/stable" % self.user)
+        self.requires("utf8proc/[>=2.10.0]@%s/stable" % self.user)
 
     def source(self):
         # Disable install compiler runtime
@@ -137,7 +138,7 @@ class PocoConan(ConanFile):
     _PocoLib = namedtuple("_PocoLib", ("lib_mask", "dependencies"))
     _PocoLibs = {
         "Headers":      _PocoLib(None,                                []),
-        "Foundation":   _PocoLib("(?:lib)?PocoFoundation.*",          ["Headers", "pcre2::pcre2", "zlib-ng::zlib-ng"]),
+        "Foundation":   _PocoLib("(?:lib)?PocoFoundation.*",          ["Headers", "pcre2::pcre2", "zlib-ng::zlib-ng", "utf8proc::utf8proc"]),
         "Crypto":       _PocoLib("(?:lib)?PocoCrypto.*",              ["Headers", "Foundation", "openssl::openssl"]),
         "Encodings":    _PocoLib("(?:lib)?PocoEncodings.*",           ["Headers", "Foundation"]),
         "Net":          _PocoLib("(?:lib)?PocoNet(?:$|[^S]{1}.*)",    ["Headers", "Foundation"]),
