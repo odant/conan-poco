@@ -9,7 +9,7 @@ import os, re
 
 class PocoConan(ConanFile):
     name = "poco"
-    version = "1.14.1+0"
+    version = "1.14.2+0"
     license = "Boost Software License Version 1.0. https://pocoproject.org/license.html"
     description = "Modern, powerful open source C++ class libraries for building network- and internet-based applications that run on desktop, server, mobile and embedded systems."
     url = "https://github.com/odant/conan-poco"
