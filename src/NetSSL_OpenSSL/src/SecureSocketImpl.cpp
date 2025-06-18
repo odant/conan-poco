@@ -267,7 +267,7 @@ int SecureSocketImpl::shutdown()
 			if (rc < 0) 
 			{
 				if (SocketImpl::lastError() == POCO_EWOULDBLOCK)
-					rc = SecureStreamSocket::ERR_SSL_WANT_WRITE;
+					rc = SecureStreamSocket::ERR_SSL_WOULD_BLOCK;
 				else
 					rc = handleError(rc);
 			}
@@ -554,7 +554,10 @@ int SecureSocketImpl::handleError(int rc)
 	case SSL_ERROR_SYSCALL:
 		if (socketError)
 		{
-			SocketImpl::error(socketError);
+			if (socketError == POCO_EWOULDBLOCK)
+				return SecureStreamSocket::ERR_SSL_WOULD_BLOCK;
+			else
+				SocketImpl::error(socketError);
 		}
 		// fallthrough
 	default:
@@ -633,6 +636,14 @@ void SecureSocketImpl::abort()
 
 Session::Ptr SecureSocketImpl::currentSession()
 {
+	if (!_pSession && _pSSL)
+	{
+		SSL_SESSION* pSession = SSL_get1_session(_pSSL);
+		if (pSession)
+		{
+			_pSession = new Session(pSession);
+		}
+	}
 	return _pSession;
 }
 
