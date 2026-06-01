@@ -19,25 +19,12 @@
 
 
 #include "Poco/Crypto/Crypto.h"
-#include "Poco/Mutex.h"
 #include "Poco/AtomicCounter.h"
 #include <openssl/crypto.h>
-#if OPENSSL_VERSION_NUMBER >= 0x30000000L
+#if POCO_OPENSSL_VERSION_PREREQ(3, 0, 0)
 #include <openssl/provider.h>
 #include <atomic>
 #endif
-#if defined(OPENSSL_FIPS) && OPENSSL_VERSION_NUMBER < 0x010001000L
-#include <openssl/fips.h>
-#endif
-
-
-extern "C"
-{
-	struct CRYPTO_dynlock_value
-	{
-		Poco::FastMutex _mutex;
-	};
-}
 
 
 namespace Poco {
@@ -72,29 +59,10 @@ public:
 	static bool haveLegacyProvider();
 		/// Returns true if the OpenSSL legacy provider is available, otherwise false.
 
-protected:
-	enum
-	{
-		SEEDSIZE = 256
-	};
-
-#if OPENSSL_VERSION_NUMBER < 0x10100000L
-	// OpenSSL multithreading support
-	static void lock(int mode, int n, const char* file, int line);
-	static unsigned long id();
-	static struct CRYPTO_dynlock_value* dynlockCreate(const char* file, int line);
-	static void dynlock(int mode, struct CRYPTO_dynlock_value* lock, const char* file, int line);
-	static void dynlockDestroy(struct CRYPTO_dynlock_value* lock, const char* file, int line);
-#endif
-
 private:
 	static Poco::AtomicCounter _rc;
 
-#if OPENSSL_VERSION_NUMBER < 0x10100000L
-	static Poco::FastMutex* _mutexes;
-#endif
-
-#if OPENSSL_VERSION_NUMBER >= 0x30000000L
+#if POCO_OPENSSL_VERSION_PREREQ(3, 0, 0)
 	static OSSL_PROVIDER* _defaultProvider;
 	static OSSL_PROVIDER* _legacyProvider;
 #endif
@@ -128,7 +96,7 @@ inline void OpenSSLInitializer::enableFIPSMode(bool /*enabled*/)
 
 inline bool OpenSSLInitializer::haveLegacyProvider()
 {
-#if OPENSSL_VERSION_NUMBER >= 0x30000000L
+#if POCO_OPENSSL_VERSION_PREREQ(3, 0, 0)
 	return _legacyProvider != nullptr;
 #else
 	return false;

@@ -60,8 +60,8 @@ public:
 	~Command() override;
 		/// Destroys the command.
 
-	Command& operator=(const Command&) = default;
-	Command& operator=(Command&&) = default;
+	Command& operator=(const Command&);
+	Command& operator=(Command&&);
 
 	static Command append(const std::string& key, const std::string& value);
 		/// Creates and returns an APPEND command.
@@ -117,7 +117,7 @@ public:
 	static Command hmget(const std::string& hash, const StringVec& fields);
 		/// Creates and returns an HMGET command.
 
-	static Command hmset(const std::string& hash, std::map<std::string, std::string>& fields);
+	static Command hmset(const std::string& hash, const std::map<std::string, std::string>& fields);
 		/// Creates and returns a HMSET command.
 
 	static Command hset(const std::string& hash, const std::string& field, const std::string& value, bool create = true);

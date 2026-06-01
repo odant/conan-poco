@@ -43,14 +43,11 @@ public:
 		/// Reads a line from Redis (until \r\n is encountered).
 
 protected:
-	int readFromDevice(char* buffer, std::streamsize length);
-	int writeToDevice(const char* buffer, std::streamsize length);
+	std::streamsize readFromDevice(char* buffer, std::streamsize length);
+	std::streamsize writeToDevice(const char* buffer, std::streamsize length);
 
 private:
-	enum
-	{
-		STREAM_BUFFER_SIZE = 1024
-	};
+	static constexpr int STREAM_BUFFER_SIZE = 1024;
 
 	Net::StreamSocket& _redis;
 };

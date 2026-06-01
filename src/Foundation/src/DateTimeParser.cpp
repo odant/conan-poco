@@ -171,6 +171,23 @@ void DateTimeParser::parse(const std::string& fmt, const std::string& dtStr, Dat
 	std::string::const_iterator itf  = fmt.begin();
 	std::string::const_iterator endf = fmt.end();
 
+	// %S optionally swallows '.NNN'/',NNN' so a trailing %z can still reach
+	// the timezone designator, but only when the format does not capture the
+	// fractional itself via %c/%i/%F/%s.
+	bool fmtHasFracSpec = false;
+	for (auto p = fmt.begin(); p + 1 < fmt.end(); ++p)
+	{
+		if (*p == '%')
+		{
+			char n = *(p + 1);
+			if (n == 'c' || n == 'i' || n == 'F' || n == 's')
+			{
+				fmtHasFracSpec = true;
+				break;
+			}
+		}
+	}
+
 	while (itf != endf && it != end)
 	{
 		if (*itf == '%')
@@ -243,6 +260,20 @@ void DateTimeParser::parse(const std::string& fmt, const std::string& dtStr, Dat
 				case 'S':
 					it = skipNonDigits(it, end);
 					second = parseNumberN(dtStr, it, end, 2);
+					// Consume optional fractional seconds ('.NNN' or ',NNN') so that a
+					// subsequent %z specifier can reach the timezone designator.
+					// A decimal point/comma not followed by a digit is an error.
+					// Skipped when the format captures the fractional itself via
+					// %c/%i/%F/%s -- those specifiers must see the digits.
+					if (!fmtHasFracSpec && it != end && (*it == '.' || *it == ','))
+					{
+						++it;
+						if (it == end || !Ascii::isDigit(*it))
+						{
+							throw SyntaxException("Invalid DateTimeString: " + dtStr + ", missing fractional digits");
+						}
+						it = skipDigits(it, end);
+					}
 					break;
 				case 's':
 					it = skipNonDigits(it, end);
@@ -268,8 +299,8 @@ void DateTimeParser::parse(const std::string& fmt, const std::string& dtStr, Dat
 					break;
 				case 'c':
 					it = skipNonDigits(it, end);
-					millis = parseNumberN(dtStr, it, end, 1);
-					millis *= 100;
+					millis = parseNumberN(dtStr, it, end, 2);
+					millis *= 10;
 					break;
 				case 'F':
 					it = skipNonDigits(it, end);
@@ -285,8 +316,33 @@ void DateTimeParser::parse(const std::string& fmt, const std::string& dtStr, Dat
 				++itf;
 			}
 		}
-		else ++itf;
+		else
+		{
+			// Match literal characters from format against input
+			if (Ascii::isSpace(*itf))
+			{
+				// Whitespace in format: skip whitespace in both
+				while (itf != endf && Ascii::isSpace(*itf)) ++itf;
+				while (it != end && Ascii::isSpace(*it)) ++it;
+			}
+			else if (it != end && *it == *itf)
+			{
+				// Non-whitespace literal matches - advance both
+				++it;
+				++itf;
+			}
+			else
+			{
+				// Literal doesn't match - just skip format char (lenient mode for backwards compatibility)
+				++itf;
+			}
+		}
 	}
+	// Skip trailing whitespace
+	while (it != end && Ascii::isSpace(*it)) ++it;
+	// Check for unconsumed input
+	if (it != end)
+		throw SyntaxException("Invalid DateTimeString: " + dtStr + ", unexpected trailing characters");
 	if (!monthParsed) month = 1;
 	if (!dayParsed) day = 1;
 	if (DateTime::isValid(year, month, day, hour, minute, second, millis, micros))
@@ -483,8 +539,8 @@ int DateTimeParser::parseMonth(std::string::const_iterator& it, const std::strin
 	while (it != end && Ascii::isAlpha(*it))
 	{
 		char ch = (*it++);
-		if (isFirst) { month += Ascii::toUpper(ch); isFirst = false; }
-		else month += Ascii::toLower(ch);
+		if (isFirst) { month += static_cast<char>(Ascii::toUpper(ch)); isFirst = false; }
+		else month += static_cast<char>(Ascii::toLower(ch));
 	}
 	if (month.length() < 3) throw SyntaxException("Month name must be at least three characters long", month);
 	for (int i = 0; i < 12; ++i)
@@ -504,8 +560,8 @@ int DateTimeParser::parseDayOfWeek(std::string::const_iterator& it, const std::s
 	while (it != end && Ascii::isAlpha(*it))
 	{
 		char ch = (*it++);
-		if (isFirst) { dow += Ascii::toUpper(ch); isFirst = false; }
-		else dow += Ascii::toLower(ch);
+		if (isFirst) { dow += static_cast<char>(Ascii::toUpper(ch)); isFirst = false; }
+		else dow += static_cast<char>(Ascii::toLower(ch));
 	}
 	if (dow.length() < 3) throw SyntaxException("Weekday name must be at least three characters long", dow);
 	for (int i = 0; i < 7; ++i)
@@ -524,7 +580,7 @@ int DateTimeParser::parseAMPM(std::string::const_iterator& it, const std::string
 	while (it != end && Ascii::isAlpha(*it))
 	{
 		char ch = (*it++);
-		ampm += Ascii::toUpper(ch);
+		ampm += static_cast<char>(Ascii::toUpper(ch));
 	}
 	if (ampm == "AM")
 	{

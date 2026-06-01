@@ -16,6 +16,7 @@
 #include "Poco/Crypto/ECDSADigestEngine.h"
 #include "Poco/Crypto/CryptoException.h"
 #include <openssl/ecdsa.h>
+#include <openssl/evp.h>
 #include <openssl/bn.h>
 
 
@@ -69,6 +70,30 @@ const DigestEngine::Digest& ECDSADigestEngine::signature()
 	if (_signature.empty())
 	{
 		digest();
+#if POCO_OPENSSL_VERSION_PREREQ(3, 0, 0)
+		EVP_PKEY_CTX* pCtx = EVP_PKEY_CTX_new(_key.impl()->getEVPPKey(), nullptr);
+		if (pCtx == nullptr)
+			throw OpenSSLException("ECDSADigestEngine::signature(): EVP_PKEY_CTX_new()");
+		if (EVP_PKEY_sign_init(pCtx) != 1)
+		{
+			EVP_PKEY_CTX_free(pCtx);
+			throw OpenSSLException("EVP_PKEY_sign_init()");
+		}
+		size_t sigLen = 0;
+		if (EVP_PKEY_sign(pCtx, nullptr, &sigLen, _digest.data(), _digest.size()) != 1)
+		{
+			EVP_PKEY_CTX_free(pCtx);
+			throw OpenSSLException("EVP_PKEY_sign()");
+		}
+		_signature.resize(sigLen);
+		if (EVP_PKEY_sign(pCtx, _signature.data(), &sigLen, _digest.data(), _digest.size()) != 1)
+		{
+			EVP_PKEY_CTX_free(pCtx);
+			throw OpenSSLException("EVP_PKEY_sign()");
+		}
+		_signature.resize(sigLen);
+		EVP_PKEY_CTX_free(pCtx);
+#else
 		_signature.resize(_key.size());
 		unsigned sigLen = static_cast<unsigned>(_signature.size());
 		if (!ECDSA_sign(0, &_digest[0], static_cast<unsigned>(_digest.size()),
@@ -77,6 +102,7 @@ const DigestEngine::Digest& ECDSADigestEngine::signature()
 			throw OpenSSLException();
 		}
 		if (sigLen < _signature.size()) _signature.resize(sigLen);
+#endif
 	}
 	return _signature;
 }
@@ -85,6 +111,21 @@ const DigestEngine::Digest& ECDSADigestEngine::signature()
 bool ECDSADigestEngine::verify(const DigestEngine::Digest& sig)
 {
 	digest();
+#if POCO_OPENSSL_VERSION_PREREQ(3, 0, 0)
+	EVP_PKEY_CTX* pCtx = EVP_PKEY_CTX_new(_key.impl()->getEVPPKey(), nullptr);
+	if (pCtx == nullptr)
+		throw OpenSSLException("ECDSADigestEngine::verify(): EVP_PKEY_CTX_new()");
+	if (EVP_PKEY_verify_init(pCtx) != 1)
+	{
+		EVP_PKEY_CTX_free(pCtx);
+		throw OpenSSLException("EVP_PKEY_verify_init()");
+	}
+	int ret = EVP_PKEY_verify(pCtx, sig.data(), sig.size(), _digest.data(), _digest.size());
+	EVP_PKEY_CTX_free(pCtx);
+	if (ret == 1) return true;
+	if (ret == 0) return false;
+	throw OpenSSLException("ECDSADigestEngine::verify(): EVP_PKEY_verify()");
+#else
 	EC_KEY* pKey = _key.impl()->getECKey();
 	if (pKey)
 	{
@@ -95,6 +136,7 @@ bool ECDSADigestEngine::verify(const DigestEngine::Digest& sig)
 		else if (0 == ret) return false;
 	}
 	throw OpenSSLException();
+#endif
 }
 
 
@@ -114,7 +156,7 @@ ECDSASignature::ECDSASignature(const ByteVec& derSignature)
 	poco_assert (!derSignature.empty());
 
 	const unsigned char* p = &derSignature[0];
-	_pSig = d2i_ECDSA_SIG(0, &p, static_cast<long>(derSignature.size()));
+	_pSig = d2i_ECDSA_SIG(nullptr, &p, static_cast<long>(derSignature.size()));
 	if (!_pSig)
 		throw OpenSSLException();
 }
@@ -129,21 +171,14 @@ ECDSASignature::ECDSASignature(const ByteVec& rawR, const ByteVec& rawS):
 
 	try
 	{
-#if OPENSSL_VERSION_NUMBER >= 0x10100000L
 		ECDSA_SIG_set0(_pSig,
-			BN_bin2bn(&rawR[0], static_cast<long>(rawR.size()), 0),
-			BN_bin2bn(&rawS[0], static_cast<long>(rawS.size()), 0));
-		const BIGNUM* pR = 0;
-		const BIGNUM* pS = 0;
+			BN_bin2bn(&rawR[0], static_cast<long>(rawR.size()), nullptr),
+			BN_bin2bn(&rawS[0], static_cast<long>(rawS.size()), nullptr));
+		const BIGNUM* pR = nullptr;
+		const BIGNUM* pS = nullptr;
 		ECDSA_SIG_get0(_pSig, &pR, &pS);
-		if (pR == 0 || pS == 0)
+		if (pR == nullptr || pS == nullptr)
 			throw Poco::Crypto::CryptoException("failed to decode R and S values");
-#else
-		if (!BN_bin2bn(&rawR[0], rawR.size(), _pSig->r))
-			 throw Poco::Crypto::OpenSSLException();
-		if (!BN_bin2bn(&rawS[0], rawS.size(), _pSig->s))
-			 throw Poco::Crypto::OpenSSLException();
-#endif
 	}
 	catch (...)
 	{
@@ -161,7 +196,7 @@ ECDSASignature::~ECDSASignature()
 
 ECDSASignature::ByteVec ECDSASignature::toDER() const
 {
-	int size = i2d_ECDSA_SIG(_pSig, 0);
+	int size = i2d_ECDSA_SIG(_pSig, nullptr);
 	if (size > 0)
 	{
 		ByteVec buffer(size);
@@ -176,14 +211,7 @@ ECDSASignature::ByteVec ECDSASignature::toDER() const
 ECDSASignature::ByteVec ECDSASignature::rawR() const
 {
 	ByteVec buffer;
-#if OPENSSL_VERSION_NUMBER >= 0x10101000L
 	const BIGNUM* pR = ECDSA_SIG_get0_r(_pSig);
-#elif OPENSSL_VERSION_NUMBER >= 0x10100000L
-	const BIGNUM* pR = 0;
-	ECDSA_SIG_get0(_pSig, &pR, 0);
-#else
-	const BIGNUM* pR = _pSig->r;
-#endif
 	if (pR)
 	{
 		buffer.resize(BN_num_bytes(pR));
@@ -196,14 +224,7 @@ ECDSASignature::ByteVec ECDSASignature::rawR() const
 ECDSASignature::ByteVec ECDSASignature::rawS() const
 {
 	ByteVec buffer;
-#if OPENSSL_VERSION_NUMBER >= 0x10101000L
 	const BIGNUM* pS = ECDSA_SIG_get0_s(_pSig);
-#elif OPENSSL_VERSION_NUMBER >= 0x10100000L
-	const BIGNUM* pS = 0;
-	ECDSA_SIG_get0(_pSig, 0, &pS);
-#else
-	const BIGNUM* pS = _pSig->s;
-#endif
 	if (pS)
 	{
 		buffer.resize(BN_num_bytes(pS));

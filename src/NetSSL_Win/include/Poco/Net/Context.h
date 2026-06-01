@@ -27,6 +27,7 @@
 #if defined(POCO_OS_FAMILY_WINDOWS)
 #include <windows.h>
 #include <wincrypt.h>
+#include <subauth.h>
 #include <schannel.h>
 #ifndef SECURITY_WIN32
 #define SECURITY_WIN32
@@ -127,11 +128,13 @@ public:
 		OPT_LOAD_CERT_FROM_FILE         = 0x10,
 			/// Load certificate and private key from a PKCS #12 (.pfx) file,
 			/// and not from the certificate store.
+		OPT_USE_CERT_HASH               = 0x20,
+			/// Find the certificate using thumbprint.
 		OPT_DEFAULTS                    = OPT_PERFORM_REVOCATION_CHECK | OPT_TRUST_ROOTS_WIN_CERT_STORE | OPT_USE_STRONG_CRYPTO
 	};
 
 	Context(Usage usage,
-		const std::string& certificateNameOrPath,
+		const std::string& certificateInfoOrPath,
 		VerificationMode verMode = VERIFY_RELAXED,
 		int options = OPT_DEFAULTS,
 		const std::string& certificateStoreName = CERT_STORE_MY);
@@ -139,7 +142,7 @@ public:
 			///
 			///   * usage specifies whether the context is used by a client or server,
 			///     as well as which protocol to use.
-			///   * certificateNameOrPath specifies either the subject name of the certificate to use,
+			///   * certificateInfoOrPath specifies either the subject name or thumbprint of the certificate to use,
 			///     or the path of a PKCS #12 file containing the certificate and corresponding private key.
 			///     If a subject name is specified, the certificate must be located in the certificate
 			///     store specified by certificateStoreName. If a path is given, the OPT_LOAD_CERT_FROM_FILE
@@ -227,9 +230,11 @@ protected:
 	void loadCertificate();
 	void importCertificate();
 	void importCertificate(const char* pBuffer, std::size_t size);
-	void acquireSchannelCredentials(CredHandle& credHandle) const;
+	SECURITY_STATUS acquireSchannelCredentials(CredHandle& credHandle) const;
+	SECURITY_STATUS acquireSchannelCredentialsLegacy(CredHandle& credHandle) const;
 	DWORD proto() const;
 	DWORD enabledProtocols() const;
+	DWORD disabledProtocols() const;
 
 private:
 	Context(const Context&);
@@ -240,7 +245,7 @@ private:
 	int                        _options;
 	int                        _disabledProtocols;
 	bool                       _extendedCertificateVerification;
-	std::string                _certNameOrPath;
+	std::string                _certInfoOrPath;
 	std::string                _certStoreName;
 	HCERTSTORE                 _hMemCertStore;
 	HCERTSTORE                 _hCollectionCertStore;

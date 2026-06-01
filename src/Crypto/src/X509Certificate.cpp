@@ -15,7 +15,6 @@
 #include "Poco/Crypto/X509Certificate.h"
 #include "Poco/Crypto/CryptoException.h"
 #include "Poco/StreamCopier.h"
-#include "Poco/String.h"
 #include "Poco/DateTimeParser.h"
 #include "Poco/Format.h"
 #include <sstream>
@@ -30,26 +29,27 @@
 #include <openssl/bn.h>
 
 
-#if OPENSSL_VERSION_NUMBER < 0x10100000L
-#define ASN1_STRING_get0_data ASN1_STRING_data
-#define X509_get0_notBefore X509_get_notBefore
-#define X509_get0_notAfter X509_get_notAfter
-#endif
-
-
 namespace Poco {
 namespace Crypto {
 
 
-X509Certificate::X509Certificate(std::istream& istr):
-	_pCert(0)
+namespace {
+
+// ASN1 UTCTime format: YYMMDDHHMMSSZ (RFC 5280 Section 4.1.2.5.1)
+const std::string ASN1_UTCTIME_FORMAT("%y%m%d%H%M%S%Z");
+// ASN1 GeneralizedTime format: YYYYMMDDHHMMSSZ (RFC 5280 Section 4.1.2.5.2)
+const std::string ASN1_GENERALIZEDTIME_FORMAT("%Y%m%d%H%M%S%Z");
+
+} // namespace
+
+
+X509Certificate::X509Certificate(std::istream& istr) : _pCert(nullptr)
 {
 	load(istr);
 }
 
 
-X509Certificate::X509Certificate(const std::string& path):
-	_pCert(0)
+X509Certificate::X509Certificate(const std::string& path) : _pCert(nullptr)
 {
 	load(path);
 }
@@ -71,11 +71,7 @@ X509Certificate::X509Certificate(X509* pCert, bool shared):
 
 	if (shared)
 	{
-#if OPENSSL_VERSION_NUMBER >= 0x10100000L
 		X509_up_ref(_pCert);
-#else
-		_pCert->references++;
-#endif
 	}
 
 	init();
@@ -147,7 +143,7 @@ void X509Certificate::load(std::istream& istr)
 
 	BIO *pBIO = BIO_new_mem_buf(const_cast<char*>(cert.data()), static_cast<int>(cert.size()));
 	if (!pBIO) throw Poco::IOException("Cannot create BIO for reading certificate");
-	_pCert = PEM_read_bio_X509(pBIO, 0, 0, 0);
+	_pCert = PEM_read_bio_X509(pBIO, nullptr, nullptr, nullptr);
 	BIO_free(pBIO);
 
 	if (!_pCert) throw Poco::IOException("Failed to load certificate from stream");
@@ -168,7 +164,7 @@ void X509Certificate::load(const std::string& path)
 		throw Poco::OpenFileException("Cannot open certificate file for reading", path);
 	}
 
-	_pCert = PEM_read_bio_X509(pBIO, 0, 0, 0);
+	_pCert = PEM_read_bio_X509(pBIO, nullptr, nullptr, nullptr);
 	BIO_free(pBIO);
 
 	if (!_pCert) throw Poco::ReadFileException("Faild to load certificate from", path);
@@ -223,7 +219,7 @@ void X509Certificate::save(const std::string& path) const
 }
 
 
-std::string _X509_NAME_oneline_utf8(X509_NAME *name)
+std::string _X509_NAME_oneline_utf8(const X509_NAME *name)
 {
 	BIO * bio_out = BIO_new(BIO_s_mem());
 	X509_NAME_print_ex(bio_out, name, 0, (ASN1_STRFLGS_RFC2253 | XN_FLAG_SEP_COMMA_PLUS | XN_FLAG_FN_SN | XN_FLAG_DUMP_UNKNOWN_FIELDS) & ~ASN1_STRFLGS_ESC_MSB);
@@ -239,7 +235,7 @@ void X509Certificate::init()
 {
 	_issuerName = _X509_NAME_oneline_utf8(X509_get_issuer_name(_pCert));
 	_subjectName = _X509_NAME_oneline_utf8(X509_get_subject_name(_pCert));
-	BIGNUM* pBN = ASN1_INTEGER_to_BN(X509_get_serialNumber(const_cast<X509*>(_pCert)), 0);
+	BIGNUM* pBN = ASN1_INTEGER_to_BN(X509_get_serialNumber(const_cast<X509 *>(_pCert)), nullptr);
 	if (pBN)
 	{
 		char* pSN = BN_bn2hex(pBN);
@@ -261,7 +257,7 @@ std::string X509Certificate::commonName() const
 
 std::string X509Certificate::issuerName(NID nid) const
 {
-	if (X509_NAME* issuer = X509_get_issuer_name(_pCert))
+	if (auto issuer = X509_get_issuer_name(_pCert))
 	{
 		char buffer[NAME_BUFFER_SIZE];
 		if (X509_NAME_get_text_by_NID(issuer, nid, buffer, sizeof(buffer)) >= 0)
@@ -273,7 +269,7 @@ std::string X509Certificate::issuerName(NID nid) const
 
 std::string X509Certificate::subjectName(NID nid) const
 {
-	if (X509_NAME* subj = X509_get_subject_name(_pCert))
+	if (auto subj = X509_get_subject_name(_pCert))
 	{
 		char buffer[NAME_BUFFER_SIZE];
 		if (X509_NAME_get_text_by_NID(subj, nid, buffer, sizeof(buffer)) >= 0)
@@ -286,8 +282,7 @@ std::string X509Certificate::subjectName(NID nid) const
 void X509Certificate::extractNames(std::string& cmnName, std::set<std::string>& domainNames) const
 {
 	domainNames.clear();
-	if (STACK_OF(GENERAL_NAME)* names = static_cast<STACK_OF(GENERAL_NAME)*>(X509_get_ext_d2i(_pCert, NID_subject_alt_name, 0, 0)))
-	{
+	if (STACK_OF(GENERAL_NAME) *names = static_cast<STACK_OF(GENERAL_NAME) *>( X509_get_ext_d2i(_pCert, NID_subject_alt_name, nullptr, nullptr))) {
 		for (int i = 0; i < sk_GENERAL_NAME_num(names); ++i)
 		{
 			const GENERAL_NAME* name = sk_GENERAL_NAME_value(names, i);
@@ -312,15 +307,16 @@ void X509Certificate::extractNames(std::string& cmnName, std::set<std::string>& 
 Poco::DateTime X509Certificate::validFrom() const
 {
 	const ASN1_TIME* certTime = X509_get0_notBefore(_pCert);
-	std::string dateTime(reinterpret_cast<char*>(certTime->data));
+	auto certTimeType = ASN1_STRING_type(certTime);
+	std::string dateTime(reinterpret_cast<const char*>(ASN1_STRING_get0_data(certTime)), ASN1_STRING_length(certTime));
 	int tzd;
-	if (certTime->type == V_ASN1_UTCTIME)
+	if (certTimeType == V_ASN1_UTCTIME)
 	{
-		return DateTimeParser::parse("%y%m%d%H%M%S", dateTime, tzd);
+		return DateTimeParser::parse(ASN1_UTCTIME_FORMAT, dateTime, tzd);
 	}
-	else if (certTime->type == V_ASN1_GENERALIZEDTIME)
+	else if (certTimeType == V_ASN1_GENERALIZEDTIME)
 	{
-		return DateTimeParser::parse("%Y%m%d%H%M%S", dateTime, tzd);
+		return DateTimeParser::parse(ASN1_GENERALIZEDTIME_FORMAT, dateTime, tzd);
 	}
 	else
 	{
@@ -332,15 +328,16 @@ Poco::DateTime X509Certificate::validFrom() const
 Poco::DateTime X509Certificate::expiresOn() const
 {
 	const ASN1_TIME* certTime = X509_get0_notAfter(_pCert);
-	std::string dateTime(reinterpret_cast<char*>(certTime->data));
+	auto certTimeType = ASN1_STRING_type(certTime);
+	std::string dateTime(reinterpret_cast<const char*>(ASN1_STRING_get0_data(certTime)), ASN1_STRING_length(certTime));
 	int tzd;
-	if (certTime->type == V_ASN1_UTCTIME)
+	if (certTimeType == V_ASN1_UTCTIME)
 	{
-		return DateTimeParser::parse("%y%m%d%H%M%S", dateTime, tzd);
+		return DateTimeParser::parse(ASN1_UTCTIME_FORMAT, dateTime, tzd);
 	}
-	else if (certTime->type == V_ASN1_GENERALIZEDTIME)
+	else if (certTimeType == V_ASN1_GENERALIZEDTIME)
 	{
-		return DateTimeParser::parse("%Y%m%d%H%M%S", dateTime, tzd);
+		return DateTimeParser::parse(ASN1_GENERALIZEDTIME_FORMAT, dateTime, tzd);
 	}
 	else
 	{
@@ -389,14 +386,7 @@ bool X509Certificate::equals(const X509Certificate& otherCertificate) const
 
 std::string X509Certificate::signatureAlgorithm() const
 {
-	int sigNID = NID_undef;
-
-#if (OPENSSL_VERSION_NUMBER >=  0x1010000fL)
-	sigNID = X509_get_signature_nid(_pCert);
-#else
-	poco_check_ptr(_pCert->sig_alg);
-	sigNID = OBJ_obj2nid(_pCert->sig_alg->algorithm);
-#endif
+	int sigNID = X509_get_signature_nid(_pCert);
 
 	if (sigNID != NID_undef)
 	{
@@ -416,8 +406,9 @@ X509Certificate::List X509Certificate::readPEM(const std::string& pemFileName)
 {
 	List caCertList;
 	BIO* pBIO = BIO_new_file(pemFileName.c_str(), "r");
-	if (pBIO == NULL) throw OpenFileException(Poco::format("X509Certificate::readPEM(%s)", pemFileName));
-	X509* x = PEM_read_bio_X509(pBIO, NULL, 0, NULL);
+	if (pBIO == nullptr)
+		throw OpenFileException(Poco::format("X509Certificate::readPEM(%s)", pemFileName));
+	X509* x = PEM_read_bio_X509(pBIO, nullptr, nullptr, nullptr);
 	if (!x)
 	{
 		BIO_free(pBIO);
@@ -426,7 +417,7 @@ X509Certificate::List X509Certificate::readPEM(const std::string& pemFileName)
 	while (x)
 	{
 		caCertList.push_back(X509Certificate(x));
-		x = PEM_read_bio_X509(pBIO, NULL, 0, NULL);
+		x = PEM_read_bio_X509(pBIO, nullptr, nullptr, nullptr);
 	}
 	BIO_free(pBIO);
 	return caCertList;
@@ -436,7 +427,7 @@ X509Certificate::List X509Certificate::readPEM(const std::string& pemFileName)
 void X509Certificate::writePEM(const std::string& pemFileName, const List& list)
 {
 	BIO* pBIO = BIO_new_file(pemFileName.c_str(), "a");
-	if (pBIO == NULL) throw OpenFileException(Poco::format("X509Certificate::writePEM(%s)", pemFileName));
+	if (pBIO == nullptr) throw OpenFileException(Poco::format("X509Certificate::writePEM(%s)", pemFileName));
 	List::const_iterator it = list.begin();
 	List::const_iterator end = list.end();
 	for (; it != end; ++it)

@@ -100,13 +100,16 @@ public:
 	void testTupleVector9();
 	void testTuple10();
 	void testTupleVector10();
+	void testStdTuple();
 
 	void testDateTime();
+	void testDateTimeVariants();
 
 	void testUUID();
 
 	void testInternalExtraction();
 	void testPrimaryKeyConstraint();
+	void testOptional();
 	void testNullable();
 	void testNullableVector();
 	void testNulls();
@@ -146,6 +149,7 @@ public:
 	void testTransactionTypeProperty();
 
 	void testRecordsetCopyMove();
+	void testAddBindingReuse();
 
 	void setUp();
 	void tearDown();

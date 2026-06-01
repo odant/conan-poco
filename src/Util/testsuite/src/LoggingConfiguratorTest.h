@@ -25,10 +25,23 @@ public:
 	~LoggingConfiguratorTest();
 
 	void testConfigurator();
+	void testFastLoggerConfigurator();
+	void testFastLoggerRootConfigurator();
+	void testFastLoggerWithRegistry();
+	void testFastLoggerOptions();
+	void testFastLoggerOptionsWarnings();
 	void testBadConfiguration1();
 	void testBadConfiguration2();
 	void testBadConfiguration3();
 	void testBadConfiguration4();
+	void testAsyncChannelShutdown();
+	void testGetLogger();
+	void testGetLoggerExisting();
+	void testGetLoggerCollision();
+	void testGetLoggerNoFormattersNoChannels();
+	void testConfigureLogger();
+	void testConfigureLoggerNestedSplitter();
+	void testReconfigureLogger();
 
 	void setUp();
 	void tearDown();

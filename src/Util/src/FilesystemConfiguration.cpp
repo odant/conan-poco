@@ -5,7 +5,7 @@
 // Package: Configuration
 // Module:  FilesystemConfiguration
 //
-// Copyright (c) 2004-2006, Applied Informatics Software Engineering GmbH.
+// Copyright (c) 2004-2025, Applied Informatics Software Engineering GmbH.
 // and Contributors.
 //
 // SPDX-License-Identifier:	BSL-1.0
@@ -31,15 +31,13 @@ namespace Poco {
 namespace Util {
 
 
+FilesystemConfiguration::~FilesystemConfiguration() = default;
+
+
 FilesystemConfiguration::FilesystemConfiguration(const std::string& path):
 	_path(path)
 {
 	_path.makeDirectory();
-}
-
-
-FilesystemConfiguration::~FilesystemConfiguration()
-{
 }
 
 

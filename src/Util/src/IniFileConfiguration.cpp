@@ -5,7 +5,7 @@
 // Package: Configuration
 // Module:  IniFileConfiguration
 //
-// Copyright (c) 2004-2006, Applied Informatics Software Engineering GmbH.
+// Copyright (c) 2004-2025, Applied Informatics Software Engineering GmbH.
 // and Contributors.
 //
 // SPDX-License-Identifier:	BSL-1.0
@@ -35,9 +35,10 @@ namespace Poco {
 namespace Util {
 
 
-IniFileConfiguration::IniFileConfiguration()
-{
-}
+IniFileConfiguration::IniFileConfiguration() = default;
+
+
+IniFileConfiguration::~IniFileConfiguration() = default;
 
 
 IniFileConfiguration::IniFileConfiguration(std::istream& istr)
@@ -49,11 +50,6 @@ IniFileConfiguration::IniFileConfiguration(std::istream& istr)
 IniFileConfiguration::IniFileConfiguration(const std::string& path)
 {
 	load(path);
-}
-
-
-IniFileConfiguration::~IniFileConfiguration()
-{
 }
 
 

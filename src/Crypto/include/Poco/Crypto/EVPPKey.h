@@ -65,8 +65,6 @@ public:
 	EVPPKey(const PKCS12Container& cert);
 		/// Constructs EVPPKey from the given container.
 
-#if OPENSSL_VERSION_NUMBER >= 0x10000000L
-
 	EVPPKey(int type, int param);
 		/// Creates the EVPPKey.
 		/// Creates a new public/private keypair using the given parameters.
@@ -79,12 +77,8 @@ public:
 		/// Parameters:
 		///   - for EVP_PKEY_RSA: key length in bits
 		///   - for EVP_PKEY_EC: curve NID
-		///
-		/// This constructor is not available for OpenSSL version < 1.0.0
 
-#endif // OPENSSL_VERSION_NUMBER >= 0x10000000L
-
-#if OPENSSL_VERSION_NUMBER >= 0x30000000L
+#if POCO_OPENSSL_VERSION_PREREQ(3, 0, 0)
 	explicit EVPPKey(const std::vector<unsigned char>* publicKey, const std::vector<unsigned char>* privateKey, unsigned long exponent, int type);
 #endif
 	
@@ -92,8 +86,8 @@ public:
 		/// Constructs EVPPKey from EVP_PKEY pointer.
 		/// The content behind the supplied pointer is internally duplicated.
 
+#if !POCO_OPENSSL_VERSION_PREREQ(3, 0, 0)
 	template<typename K>
-	//[[deprecated]] explicit EVPPKey(K* pKey): _pEVPPKey(EVP_PKEY_new())
 	explicit EVPPKey(K* pKey): _pEVPPKey(EVP_PKEY_new())
 		/// Constructs EVPPKey from a "native" OpenSSL (RSA or EC_KEY),
 		/// or a Poco wrapper (RSAKey, ECKey) key pointer.
@@ -101,6 +95,7 @@ public:
 		if (!_pEVPPKey) throw OpenSSLException();
 		setKey(pKey);
 	}
+#endif
 
 	EVPPKey(const std::string& publicKeyFile, const std::string& privateKeyFile, const std::string& privateKeyPassphrase = "");
 		/// Creates the EVPPKey, by reading public and private key from the given files and
@@ -149,7 +144,7 @@ public:
 		/// If an empty filename is specified, the corresponding key
 		/// is not exported.
 
-	void save(std::ostream* pPublicKeyStream, std::ostream* pPrivateKeyStream = 0, const std::string& privateKeyPassphrase = "") const;
+	void save(std::ostream* pPublicKeyStream, std::ostream* pPrivateKeyStream = nullptr, const std::string& privateKeyPassphrase = "") const;
 		/// Exports the public and/or private key to the given streams.
 		///
 		/// If a null pointer is passed for a stream, the corresponding
@@ -176,7 +171,7 @@ public:
 
 private:
 	EVPPKey();
-#if OPENSSL_VERSION_NUMBER >= 0x30000000L	
+#if POCO_OPENSSL_VERSION_PREREQ(3, 0, 0)	
 	void setKeyFromParameters(OSSL_PARAM* parameters);
 #endif
 	static int type(const EVP_PKEY* pEVPPKey);
@@ -184,17 +179,12 @@ private:
 	void newECKey(const char* group);
 	void duplicate(EVP_PKEY* pEVPPKey);
 
-	//[[deprecated]]
+#if !POCO_OPENSSL_VERSION_PREREQ(3, 0, 0)
 	void setKey(ECKey* pKey);
-
-	//[[deprecated]]
 	void setKey(RSAKey* pKey);
-
-	//[[deprecated]]
 	void setKey(EC_KEY* pKey);
-
-	//[[deprecated]]
 	void setKey(RSA* pKey);
+#endif
 
 	static int passCB(char* buf, int size, int, void* pass);
 
@@ -218,7 +208,7 @@ private:
 		poco_check_ptr (ppKey);
 		poco_assert_dbg (!*ppKey);
 
-		FILE* pFile = 0;
+		FILE* pFile = nullptr;
 		if (!keyFile.empty())
 		{
 			if (!getFunc) *ppKey = (K*)EVP_PKEY_new();
@@ -236,11 +226,11 @@ private:
 
 				if (pFile)
 				{
-					pem_password_cb* pCB = pass.empty() ? (pem_password_cb*)0 : &passCB;
-					void* pPassword = pass.empty() ? (void*)0 : (void*)pass.c_str();
+					pem_password_cb* pCB = &passCB;
+					void* pPassword = const_cast<char*>(pass.c_str());
 					if (readFunc(pFile, &pKey, pCB, pPassword))
 					{
-						fclose(pFile); pFile = 0;
+						fclose(pFile); pFile = nullptr;
 						if(getFunc)
 						{
 							*ppKey = (K*)getFunc(pKey);
@@ -254,14 +244,16 @@ private:
 						if (!*ppKey) goto error;
 						return true;
 					}
-					if (getFunc) EVP_PKEY_free(pKey);
+					EVP_PKEY_free(pKey);
+					if (!getFunc) *ppKey = nullptr;
 					goto error;
 				}
 				else
 				{
 					std::string msg = Poco::format("EVPPKey::loadKey('%s')\n", keyFile);
 					getError(msg);
-					if (getFunc) EVP_PKEY_free(pKey);
+					EVP_PKEY_free(pKey);
+					if (!getFunc) *ppKey = nullptr;
 					throw IOException(msg);
 				}
 			}
@@ -288,7 +280,7 @@ private:
 		poco_check_ptr(ppKey);
 		poco_assert_dbg(!*ppKey);
 
-		BIO* pBIO = 0;
+		BIO* pBIO = nullptr;
 		if (pIstr)
 		{
 			std::ostringstream ostr;
@@ -301,11 +293,11 @@ private:
 				EVP_PKEY* pKey = getFunc ? EVP_PKEY_new() : (EVP_PKEY*)*ppKey;
 				if (pKey)
 				{
-					pem_password_cb* pCB = pass.empty() ? (pem_password_cb*)0 : &passCB;
-					void* pPassword = pass.empty() ? (void*)0 : (void*)pass.c_str();
+					pem_password_cb* pCB = &passCB;
+					void* pPassword = const_cast<char*>(pass.c_str());
 					if (readFunc(pBIO, &pKey, pCB, pPassword))
 					{
-						BIO_free(pBIO); pBIO = 0;
+						BIO_free(pBIO); pBIO = nullptr;
 						if (getFunc)
 						{
 							*ppKey = (K*)getFunc(pKey);
@@ -319,7 +311,8 @@ private:
 						if (!*ppKey) goto error;
 						return true;
 					}
-					if (getFunc) EVP_PKEY_free(pKey);
+					EVP_PKEY_free(pKey);
+					if (!getFunc) *ppKey = nullptr;
 					goto error;
 				}
 				else goto error;
@@ -335,7 +328,7 @@ private:
 		throw OpenSSLException(msg);
 	}
 
-	EVP_PKEY* _pEVPPKey = 0;
+	EVP_PKEY* _pEVPPKey = nullptr;
 	static const std::map<int, std::string> KNOWN_TYPES;
 
 	friend class ECKeyImpl;
@@ -352,7 +345,7 @@ inline bool EVPPKey::operator == (const EVPPKey& other) const
 {
 	poco_check_ptr (other._pEVPPKey);
 	poco_check_ptr (_pEVPPKey);
-#if OPENSSL_VERSION_NUMBER >= 0x30000000L
+#if POCO_OPENSSL_VERSION_PREREQ(3, 0, 0)
 	return (1 == EVP_PKEY_eq(_pEVPPKey, other._pEVPPKey));
 #else
 	return (1 == EVP_PKEY_cmp(_pEVPPKey, other._pEVPPKey));

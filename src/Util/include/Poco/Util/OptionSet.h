@@ -7,7 +7,7 @@
 //
 // Definition of the OptionSet class.
 //
-// Copyright (c) 2004-2006, Applied Informatics Software Engineering GmbH.
+// Copyright (c) 2004-2025, Applied Informatics Software Engineering GmbH.
 // and Contributors.
 //
 // SPDX-License-Identifier:	BSL-1.0
@@ -71,11 +71,17 @@ public:
 		/// Throws an AmbiguousOptionException if a partial full name matches
 		/// more than one option.
 
-	Iterator begin() const;
+	Iterator begin() const
 		/// Supports iterating over all options.
+	{
+		return _options.begin();
+	}
 
-	Iterator end() const;
+	Iterator end() const
 		/// Supports iterating over all options.
+	{
+		return _options.end();
+	}
 
 private:
 	OptionVec _options;

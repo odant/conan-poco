@@ -142,7 +142,7 @@ private:
 SQLExecutor::SQLExecutor(const std::string& name, Poco::Data::Session* pSession):
 	CppUnit::TestCase(name),
 	_pSession(pSession),
-	_dataExecutor("Poco::Data SQL Executor", pSession, nullptr, true)
+	_dataExecutor(name, pSession, nullptr, true)
 {
 }
 
@@ -174,13 +174,13 @@ void SQLExecutor::oidPostgreSQLTest(std::string host, std::string user, std::str
 	connectionString.append("port=");
 	connectionString.append(port);
 
-	PGconn *  pConnection = 0;
+	PGconn *  pConnection = nullptr;
 
 	pConnection = PQconnectdb(connectionString.c_str());
 
 	assertTrue (PQstatus(pConnection) == CONNECTION_OK);
 
-	PGresult * pResult = 0;
+	PGresult * pResult = nullptr;
 	std::string sql = "DROP TABLE IF EXISTS Test";
 
 	pResult = PQexec(pConnection, sql.c_str());
@@ -203,7 +203,7 @@ void SQLExecutor::oidPostgreSQLTest(std::string host, std::string user, std::str
 	sql = "SELECT * FROM Test";
 	std::string selectStatementName = "SELECT Statement";
 
-	pResult = PQprepare(pConnection, selectStatementName.c_str(), sql.c_str(), 0, 0);
+	pResult = PQprepare(pConnection, selectStatementName.c_str(), sql.c_str(), 0, nullptr);
 
 	assertTrue (PQresultStatus(pResult) == PGRES_COMMAND_OK);
 	PQclear(pResult);
@@ -273,20 +273,20 @@ void SQLExecutor::barebonePostgreSQLTest(std::string host, std::string user, std
 	connectionString.append("port=");
 	connectionString.append(port);
 
-	PGconn *  pConnection = 0;
+	PGconn *  pConnection = nullptr;
 
 	pConnection = PQconnectdb(connectionString.c_str());
 
 	assertTrue (PQstatus(pConnection) == CONNECTION_OK);
 
-	PGresult * pResult = 0;
+	PGresult * pResult = nullptr;
 	std::string sql = "DROP TABLE IF EXISTS Test";
 
 	pResult = PQexec(pConnection, sql.c_str());
 
 	std::cout << "Drop Table Test Result: " <<  PQresStatus(PQresultStatus(pResult)) << " statement: "<< sql.c_str() << std::endl;
 
-	assertTrue (	PQresultStatus(pResult) == PGRES_COMMAND_OK
+	assertTrue (PQresultStatus(pResult) == PGRES_COMMAND_OK
 			|| PQresultStatus(pResult) == PGRES_FATAL_ERROR);
 
 	PQclear(pResult);
@@ -306,7 +306,7 @@ void SQLExecutor::barebonePostgreSQLTest(std::string host, std::string user, std
 						insertStatementName.c_str(),
 						sql.c_str(),
 						5,
-						0
+						nullptr
 						);
 
 	assertTrue (PQresultStatus(pResult) == PGRES_COMMAND_OK);
@@ -316,7 +316,7 @@ void SQLExecutor::barebonePostgreSQLTest(std::string host, std::string user, std
 	int fourth = ByteOrder::toNetwork((Poco::UInt32) 4);
 	float fifth = 1.5;
 
-	const char *paramValues[5] = { 0 };
+	const char *paramValues[5] = { nullptr };
 	int paramLengths[5] = { 0 };
 	int paramFormats[5] = { 0 };
 
@@ -364,7 +364,7 @@ void SQLExecutor::barebonePostgreSQLTest(std::string host, std::string user, std
 
 	assertTrue (PQntuples(pResult) == 1);
 
-	char* pSelectResult[5] = { 0 };
+	char* pSelectResult[5] = { nullptr };
 	int pResultLengths[5] = { 0 };
 
 	// column 0
@@ -377,7 +377,7 @@ void SQLExecutor::barebonePostgreSQLTest(std::string host, std::string user, std
 										0,
 										0
 									);
-	assertTrue (pSelectResult[ 0 ] != 0);
+	assertTrue (pSelectResult[ 0 ] != nullptr);
 	assertTrue (pResultLengths[ 0 ] != 0);
 
 	// column 1
@@ -390,7 +390,7 @@ void SQLExecutor::barebonePostgreSQLTest(std::string host, std::string user, std
 										0,
 										1
 									);
-	assertTrue (pSelectResult[ 1 ] != 0);
+	assertTrue (pSelectResult[ 1 ] != nullptr);
 	assertTrue (pResultLengths[ 1 ] != 0);
 
 	// column 2
@@ -403,7 +403,7 @@ void SQLExecutor::barebonePostgreSQLTest(std::string host, std::string user, std
 										0,
 										2
 									);
-	assertTrue (pSelectResult[ 2 ] != 0);
+	assertTrue (pSelectResult[ 2 ] != nullptr);
 	assertTrue (pResultLengths[ 2 ] != 0);
 
 // column 3
@@ -416,7 +416,7 @@ void SQLExecutor::barebonePostgreSQLTest(std::string host, std::string user, std
 											0,
 											3
 									);
-	assertTrue (pSelectResult[ 3 ] != 0);
+	assertTrue (pSelectResult[ 3 ] != nullptr);
 	assertTrue (pResultLengths[ 3 ] != 0);
 
 	// column 4
@@ -429,7 +429,7 @@ void SQLExecutor::barebonePostgreSQLTest(std::string host, std::string user, std
 										0,
 										4
 									);
-	assertTrue (pSelectResult[ 4 ] != 0);
+	assertTrue (pSelectResult[ 4 ] != nullptr);
 	assertTrue (pResultLengths[ 4 ] != 0);
 
 /*
@@ -823,6 +823,50 @@ void SQLExecutor::time()
 }
 
 
+void SQLExecutor::dateTimeVariants()
+{
+	std::string funct = "dateTimeVariants()";
+
+	// Setup: TIMESTAMP column to test cross-type extraction
+	try { *_pSession << "DROP TABLE IF EXISTS DateTimeVariants", now; } catch (...) {}
+	try { *_pSession << "CREATE TABLE DateTimeVariants (dt0 TIMESTAMP)", now; }
+	catch(ConnectionException& ce){ std::cout << ce.displayText() << std::endl; fail (funct); }
+	catch(StatementException& se){ std::cout << se.displayText() << std::endl; fail (funct); }
+
+	DateTime inserted(2023, 3, 5, 8, 35, 1);
+	try { *_pSession << "INSERT INTO DateTimeVariants VALUES ($1)", use(inserted), now; }
+	catch(ConnectionException& ce){ std::cout << ce.displayText() << std::endl; fail (funct); }
+	catch(StatementException& se){ std::cout << se.displayText() << std::endl; fail (funct); }
+
+	// Extract full DateTime
+	DateTime rdt;
+	try { *_pSession << "SELECT dt0 FROM DateTimeVariants", into(rdt), now; }
+	catch(ConnectionException& ce){ std::cout << ce.displayText() << std::endl; fail (funct); }
+	catch(StatementException& se){ std::cout << se.displayText() << std::endl; fail (funct); }
+	assertTrue (rdt == inserted);
+
+	// Extract as Date (only date part via cast)
+	Date rd;
+	try { *_pSession << "SELECT dt0::DATE FROM DateTimeVariants", into(rd), now; }
+	catch(ConnectionException& ce){ std::cout << ce.displayText() << std::endl; fail (funct); }
+	catch(StatementException& se){ std::cout << se.displayText() << std::endl; fail (funct); }
+	assertTrue (rd.year() == 2023);
+	assertTrue (rd.month() == 3);
+	assertTrue (rd.day() == 5);
+
+	// Extract as Time (only time part via cast)
+	Time rt;
+	try { *_pSession << "SELECT dt0::TIME FROM DateTimeVariants", into(rt), now; }
+	catch(ConnectionException& ce){ std::cout << ce.displayText() << std::endl; fail (funct); }
+	catch(StatementException& se){ std::cout << se.displayText() << std::endl; fail (funct); }
+	assertTrue (rt.hour() == 8);
+	assertTrue (rt.minute() == 35);
+	assertTrue (rt.second() == 1);
+
+	*_pSession << "DROP TABLE DateTimeVariants", now;
+}
+
+
 void SQLExecutor::blob(unsigned int bigSize)
 {
 	std::string funct = "blob()";
@@ -1086,4 +1130,16 @@ void SQLExecutor::transaction(const std::string& connect)
 void SQLExecutor::reconnect()
 {
 	_dataExecutor.reconnect();
+}
+
+
+void SQLExecutor::stdOptional()
+{
+	_dataExecutor.stdOptional();
+}
+
+
+void SQLExecutor::stdTupleWithOptional()
+{
+	_dataExecutor.stdTupleWithOptional();
 }

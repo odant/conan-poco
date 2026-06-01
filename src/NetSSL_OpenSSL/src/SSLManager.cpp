@@ -28,10 +28,8 @@
 #include "Poco/StringTokenizer.h"
 #include "Poco/Util/Application.h"
 #include "Poco/Util/OptionException.h"
-#if OPENSSL_VERSION_NUMBER >= 0x10001000L
 #include <openssl/ocsp.h>
 #include <openssl/tls1.h>
-#endif
 
 
 namespace Poco {
@@ -264,8 +262,8 @@ int SSLManager::privateKeyPassphraseCallback(char* pBuf, int size, int flag, voi
 
 	strncpy(pBuf, (char *)(pwd.c_str()), size);
 	pBuf[size - 1] = '\0';
-	if (size > pwd.length())
-		size = (int) pwd.length();
+	if (static_cast<std::size_t>(size) > pwd.length())
+		size = static_cast<int>(pwd.length());
 
 	return size;
 }
@@ -273,7 +271,6 @@ int SSLManager::privateKeyPassphraseCallback(char* pBuf, int size, int flag, voi
 
 int SSLManager::verifyOCSPResponseCallback(SSL* pSSL, void* arg)
 {
-#if OPENSSL_VERSION_NUMBER >= 0x10001000L
 	const long OCSP_VALIDITY_LEEWAY = 5*60;
 
 	Poco::Net::Context* pContext = static_cast<Poco::Net::Context*>(arg);
@@ -316,7 +313,7 @@ int SSLManager::verifyOCSPResponseCallback(SSL* pSSL, void* arg)
 	X509* pPeerIssuerCert = nullptr;
 	STACK_OF(X509)* pCertChain = SSL_get_peer_cert_chain(pSSL);
 	unsigned certChainLen = sk_X509_num(pCertChain);
-	for (int i= 0; i < certChainLen ; i++)
+	for (unsigned i = 0; i < certChainLen; i++)
 	{
 		if (!pPeerIssuerCert)
 		{
@@ -404,7 +401,6 @@ int SSLManager::verifyOCSPResponseCallback(SSL* pSSL, void* arg)
 
 	OCSP_BASICRESP_free(pBasicResp);
 	OCSP_RESPONSE_free(pOcspResp);
-#endif
 
 	return 1;
 }
@@ -567,7 +563,7 @@ void SSLManager::initPassphraseHandler(bool server)
 
 	std::string className(config.getString(prefix + CFG_DELEGATE_HANDLER, VAL_DELEGATE_HANDLER));
 
-	const PrivateKeyFactory* pFactory = 0;
+	const PrivateKeyFactory* pFactory = nullptr;
 	if (privateKeyFactoryMgr().hasFactory(className))
 	{
 		pFactory = privateKeyFactoryMgr().getFactory(className);
@@ -594,7 +590,7 @@ void SSLManager::initCertificateHandler(bool server)
 
 	std::string className(config.getString(prefix+CFG_CERTIFICATE_HANDLER, VAL_CERTIFICATE_HANDLER));
 
-	const CertificateHandlerFactory* pFactory = 0;
+	const CertificateHandlerFactory* pFactory = nullptr;
 	if (certificateHandlerFactoryMgr().hasFactory(className))
 	{
 		pFactory = certificateHandlerFactoryMgr().getFactory(className);

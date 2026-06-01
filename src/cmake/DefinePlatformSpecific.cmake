@@ -48,6 +48,44 @@ if(MSVC)
 else(MSVC)
 	# Other compilers then MSVC don't have a static STATIC_POSTFIX at the moment
 	set(STATIC_POSTFIX "" CACHE STRING "Set static library postfix" FORCE)
+
+	# Strip symbols from Release binaries. Apple's ld deprecated `-s`;
+	# `-Wl,-x` is its documented replacement and keeps dynamic exports.
+	# MSVC has no equivalent — symbols live in the .pdb, not the binary.
+	if(APPLE)
+		add_link_options($<$<CONFIG:Release>:-Wl,-x>)
+	else()
+		add_link_options($<$<CONFIG:Release>:-s>)
+	endif()
+
+	# Dead-code stripping for macOS: Apple's -dead_strip works on Mach-O
+	# atoms without needing -ffunction-sections/-fdata-sections.
+	# Skipped in Debug builds to preserve symbols for debugging.
+	if(APPLE)
+		add_link_options($<$<NOT:$<CONFIG:Debug>>:-Wl,-dead_strip>)
+	endif()
+
+	# When hidden visibility is enabled, non-exported symbols are no longer
+	# linker roots. This allows the linker to discard unreferenced hidden
+	# symbols from shared libraries. Enable -ffunction-sections/-fdata-sections
+	# so each function gets its own section for fine-grained gc.
+	# Without hidden visibility this is net negative on ELF (section metadata
+	# overhead exceeds zero savings since all symbols are roots).
+	if(CMAKE_CXX_VISIBILITY_PRESET STREQUAL "hidden")
+		add_compile_options(-ffunction-sections -fdata-sections)
+		if(APPLE)
+			# -dead_strip already added above; section flags improve its
+			# granularity for hidden symbols.
+		else()
+			add_link_options($<$<NOT:$<CONFIG:Debug>>:-Wl,--gc-sections>)
+			# Identical Code Folding: merge functions with identical bodies.
+			# Requires gold or lld (not supported by BFD ld).
+			execute_process(COMMAND ${CMAKE_LINKER} --version OUTPUT_VARIABLE _linker_version ERROR_VARIABLE _linker_version)
+			if(_linker_version MATCHES "gold|LLD")
+				add_link_options($<$<NOT:$<CONFIG:Debug>>:-Wl,--icf=safe>)
+			endif()
+		endif()
+	endif()
 endif(MSVC)
 
 if (DEFINED POCO_SANITIZEFLAGS AND NOT "${POCO_SANITIZEFLAGS}" STREQUAL "")
@@ -56,20 +94,47 @@ if (DEFINED POCO_SANITIZEFLAGS AND NOT "${POCO_SANITIZEFLAGS}" STREQUAL "")
 	add_link_options(${POCO_SANITIZEFLAGS})
 endif()
 
-if (ENABLE_COMPILER_WARNINGS)
-	message(STATUS "Enabling additional compiler warning flags.")
-	# Additional compiler-specific warning flags
-	if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-		# using clang
-		add_compile_options(-Wall -Wextra -Wpedantic -Wno-unused-parameter)
-	elseif (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-		# using GCC
-		add_compile_options(-Wall -Wextra -Wpedantic -Wno-unused-parameter)
-	elseif (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
-		# using Visual Studio C++
-		add_compile_options(/W4)
+#################################################################################
+# Compiler warnings for Poco code only
+#################################################################################
+# This function enables additional compiler warnings for Poco C++ code.
+# It should be called from the root CMakeLists.txt AFTER add_subdirectory(dependencies)
+# to ensure third-party code is not affected.
+#
+# The function uses $<COMPILE_LANGUAGE:CXX> generator expressions to apply
+# warnings only to C++ files, providing an extra layer of protection since
+# bundled dependencies are mostly C code.
+#
+function(poco_enable_detailed_compiler_warnings)
+	if (NOT ENABLE_COMPILER_WARNINGS)
+		return()
 	endif()
-endif()
+
+	message(STATUS "Enabling additional compiler warning flags for Poco C++ code only.")
+
+	if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+		# Clang and AppleClang
+		add_compile_options(
+			$<$<COMPILE_LANGUAGE:CXX>:-Wall>
+			$<$<COMPILE_LANGUAGE:CXX>:-Wextra>
+			$<$<COMPILE_LANGUAGE:CXX>:-Wpedantic>
+			$<$<COMPILE_LANGUAGE:CXX>:-Wno-unused-parameter>
+			$<$<COMPILE_LANGUAGE:CXX>:-Wzero-as-null-pointer-constant>
+		)
+	elseif (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+		# GCC
+		add_compile_options(
+			$<$<COMPILE_LANGUAGE:CXX>:-Wall>
+			$<$<COMPILE_LANGUAGE:CXX>:-Wextra>
+			$<$<COMPILE_LANGUAGE:CXX>:-Wpedantic>
+			$<$<COMPILE_LANGUAGE:CXX>:-Wno-unused-parameter>
+			$<$<COMPILE_LANGUAGE:CXX>:-Wzero-as-null-pointer-constant>
+		)
+	elseif (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+		# Visual Studio
+		add_compile_options($<$<COMPILE_LANGUAGE:CXX>:/W4>)
+	endif()
+endfunction(poco_enable_detailed_compiler_warnings)
 
 # Add a d postfix to the debug libraries
 if(BUILD_SHARED_LIBS)
@@ -84,9 +149,7 @@ else(BUILD_SHARED_LIBS)
 	set(CMAKE_RELWITHDEBINFO_POSTFIX "${STATIC_POSTFIX}" CACHE STRING "Set RelWithDebInfo library postfix" FORCE)
 endif()
 
-# MacOS version that has full support for C++17
-set(CMAKE_OSX_DEPLOYMENT_TARGET, 10.15)
-
 # OS Detection
 include(CheckTypeSize)
+include(CheckAtomic)
 find_package(Cygwin)

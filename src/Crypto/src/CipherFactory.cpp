@@ -22,7 +22,7 @@
 #include "Poco/Exception.h"
 #include <openssl/evp.h>
 #include <openssl/err.h>
-#if OPENSSL_VERSION_NUMBER >= 0x30000000L
+#if POCO_OPENSSL_VERSION_PREREQ(3, 0, 0)
 #include <openssl/provider.h>
 #endif
 
@@ -33,9 +33,9 @@ namespace Crypto {
 
 CipherFactory::CipherFactory()
 {
-#if OPENSSL_VERSION_NUMBER >= 0x30000000L
-	OSSL_PROVIDER_load(NULL, "default");
-	OSSL_PROVIDER_load(NULL, "legacy");
+#if POCO_OPENSSL_VERSION_PREREQ(3, 0, 0)
+	OSSL_PROVIDER_load(nullptr, "default");
+	OSSL_PROVIDER_load(nullptr, "legacy");
 #endif
 }
 

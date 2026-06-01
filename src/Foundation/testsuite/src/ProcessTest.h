@@ -32,6 +32,14 @@ public:
 	void testLaunchArgs();
 	void testLaunchInvalidCommand();
 	void testIsRunning();
+	void testLaunchCloseHandles();
+	void testIsRunningAllowsForTermination();
+	void testIsRunningByPidAllowsForTermination();
+	void testWaitAfterIsRunning();
+	void testConcurrentWaitAndIsRunning();
+	void testSignalExitCode();
+	void testIsRunningByPidThenWaitOnHandle();
+	void testIsRunningAfterWait();
 
 	void setUp();
 	void tearDown();

@@ -7,7 +7,7 @@
 //
 // Definition of the LayeredConfiguration class.
 //
-// Copyright (c) 2004-2006, Applied Informatics Software Engineering GmbH.
+// Copyright (c) 2004-2025, Applied Informatics Software Engineering GmbH.
 // and Contributors.
 //
 // SPDX-License-Identifier:	BSL-1.0
@@ -96,17 +96,17 @@ public:
 protected:
 	struct ConfigItem
 	{
-		typedef AbstractConfiguration::Ptr ACPtr;
+		using ACPtr = AbstractConfiguration::Ptr;
 		ACPtr       pConfig;
 		int         priority;
 		bool        writeable;
 		std::string label;
 	};
 
-	bool getRaw(const std::string& key, std::string& value) const;
-	void setRaw(const std::string& key, const std::string& value);
-	void enumerate(const std::string& key, Keys& range) const;
-	void removeRaw(const std::string& key);
+	bool getRaw(const std::string& key, std::string& value) const override;
+	void setRaw(const std::string& key, const std::string& value) override;
+	void enumerate(const std::string& key, Keys& range) const override;
+	void removeRaw(const std::string& key) override;
 
 	int lowest() const;
 	int highest() const;
@@ -115,10 +115,7 @@ protected:
 	~LayeredConfiguration();
 
 private:
-	LayeredConfiguration(const LayeredConfiguration&);
-	LayeredConfiguration& operator = (const LayeredConfiguration&);
-
-	typedef std::list<ConfigItem> ConfigList;
+	using ConfigList = std::list<ConfigItem>;
 
 	ConfigList _configs;
 };

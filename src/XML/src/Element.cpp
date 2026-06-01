@@ -28,7 +28,7 @@ namespace XML {
 Element::Element(Document* pOwnerDocument, const XMLString& namespaceURI, const XMLString& localName, const XMLString& qname):
 	AbstractContainerNode(pOwnerDocument),
 	_name(pOwnerDocument->namePool().insert(qname, namespaceURI, localName)),
-	_pFirstAttr(0)
+	_pFirstAttr(nullptr)
 {
 }
 
@@ -36,7 +36,7 @@ Element::Element(Document* pOwnerDocument, const XMLString& namespaceURI, const 
 Element::Element(Document* pOwnerDocument, const Element& element):
 	AbstractContainerNode(pOwnerDocument, element),
 	_name(pOwnerDocument->namePool().insert(element._name)),
-	_pFirstAttr(0)
+	_pFirstAttr(nullptr)
 {
 	Attr* pAttr = element._pFirstAttr;
 	while (pAttr)
@@ -135,8 +135,8 @@ Attr* Element::removeAttributeNode(Attr* oldAttr)
 	if (oldAttr != _pFirstAttr)
 	{
 		Attr* pCur = _pFirstAttr;
-		while (pCur->_pNext != oldAttr) pCur = static_cast<Attr*>(pCur->_pNext);
-		if (pCur)
+		while (pCur != nullptr && pCur->_pNext != oldAttr) pCur = static_cast<Attr*>(pCur->_pNext);
+		if (pCur != nullptr)
 		{
 			pCur->_pNext = static_cast<Attr*>(pCur->_pNext->_pNext);
 		}
@@ -418,7 +418,7 @@ Element* Element::getElementById(const XMLString& elementId, const XMLString& id
 		}
 		pNode = pNode->nextSibling();
 	}
-	return 0;
+	return nullptr;
 }
 
 
@@ -437,7 +437,7 @@ Element* Element::getElementByIdNS(const XMLString& elementId, const XMLString& 
 		}
 		pNode = pNode->nextSibling();
 	}
-	return 0;
+	return nullptr;
 }
 
 

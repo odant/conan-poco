@@ -192,6 +192,63 @@ private:
 };
 
 
+class InterruptionRunnable : public Runnable
+{
+public:
+	virtual void run() override
+	{
+		_sleep = !Thread::trySleep(300000);
+		_interrupted = Thread::current()->isInterrupted();
+
+		try
+		{
+			Thread::current()->checkInterrupted();
+		}
+		catch (const Poco::ThreadInterruptedException&)
+		{
+			_exception = true;
+		}
+
+		// interrupt state should be cleared
+		if (!Thread::current()->isInterrupted())
+		{
+			_interruptCleared = true;
+		}
+
+		// interrupt state should be cleared
+		try
+		{
+			Thread::current()->checkInterrupted();
+			_exceptionCleared = true;
+		}
+		catch (const Poco::ThreadInterruptedException&)
+		{
+			_exceptionCleared = false;
+		}
+	}
+
+	bool isTestOK() const
+	{
+		if (_sleep &&
+			_interrupted &&
+			_exception &&
+			_interruptCleared &&
+			_exceptionCleared)
+		{
+			return true;
+		}
+		return false;
+	}
+
+private:
+	bool _sleep = false;
+	bool _interrupted = false;
+	bool _exception = false;
+	bool _interruptCleared = false;
+	bool _exceptionCleared = false;
+};
+
+
 ThreadTest::ThreadTest(const std::string& name): CppUnit::TestCase(name)
 {
 }
@@ -366,25 +423,52 @@ void ThreadTest::testTrySleep()
 	assertTrue (!thread.isRunning());
 	assertTrue (r.counter() == 0);
 	thread.start(r);
-	assertTrue (thread.isRunning());
-	assertTrue (r.counter() == 0);
-	assertTrue (r.isSleepy());
-	Thread::sleep(100);
-	assertTrue (r.counter() == 0);
-	assertTrue (r.isSleepy());
-	thread.wakeUp(); Thread::sleep(10);
-	assertTrue (r.counter() == 1);
-	assertTrue (r.isSleepy());
-	Thread::sleep(100);
-	assertTrue (r.counter() == 1);
-	thread.wakeUp(); Thread::sleep(10);
-	assertTrue (r.counter() == 2);
-	assertTrue (r.isSleepy());
-	Thread::sleep(200);
-	assertTrue (r.counter() == 3);
-	assertTrue (!r.isSleepy());
-	assertTrue (!thread.isRunning());
+	auto waitForCounter = [&](int expected)
+	{
+		for (int i = 0; i < 500 && r.counter() < expected; ++i)
+			Thread::sleep(10);
+	};
+	auto waitNotRunning = [&]()
+	{
+		// run() returns immediately after the third counter increment,
+		// but Thread's internal state machine takes a few cycles to
+		// catch up; on Windows static-mt the gap is observable. Poll
+		// up to 5 s before reporting the thread as still running.
+		for (int i = 0; i < 500 && thread.isRunning(); ++i)
+			Thread::sleep(10);
+	};
+	try
+	{
+		assertTrue (thread.isRunning());
+		assertTrue (r.counter() == 0);
+		assertTrue (r.isSleepy());
+		Thread::sleep(100);
+		assertTrue (r.counter() == 0);
+		assertTrue (r.isSleepy());
+		thread.wakeUp();
+		waitForCounter(1);
+		assertTrue (r.counter() == 1);
+		assertTrue (r.isSleepy());
+		Thread::sleep(100);
+		assertTrue (r.counter() == 1);
+		thread.wakeUp();
+		waitForCounter(2);
+		assertTrue (r.counter() == 2);
+		assertTrue (r.isSleepy());
+		waitForCounter(3);
+		assertTrue (r.counter() == 3);
+		assertTrue (!r.isSleepy());
+		waitNotRunning();
+		assertTrue (!thread.isRunning());
+	}
+	catch (...)
+	{
+		thread.wakeUp();
+		thread.join();
+		throw;
+	}
 	thread.wakeUp();
+	assertTrue (thread.tryJoin(5000));
 	assertTrue (!thread.isRunning());
 }
 
@@ -553,6 +637,41 @@ void ThreadTest::testAffinity()
 }
 
 
+void ThreadTest::testInterrupt()
+{
+	Thread thread;
+
+	for (int i = 0; i < 2; i++)
+	{
+		InterruptionRunnable r;
+
+		thread.start(r);
+		Thread::sleep(200);
+		assertTrue (thread.isRunning());
+		assertTrue (!thread.tryJoin(100));
+
+		// interrupt
+		thread.interrupt();
+		thread.join();
+
+		// clear the interrupt state to re-use the thread
+		thread.clearInterrupt();
+		assertTrue (!thread.isInterrupted());
+
+		try
+		{
+			thread.checkInterrupted();
+		}
+		catch (const std::exception&)
+		{
+			assertTrue (false);
+		}
+
+		assertTrue (r.isTestOK());
+	}
+}
+
+
 void ThreadTest::setUp()
 {
 }
@@ -583,6 +702,7 @@ CppUnit::Test* ThreadTest::suite()
 	CppUnit_addTest(pSuite, ThreadTest, testThreadStackSize);
 	CppUnit_addTest(pSuite, ThreadTest, testSleep);
 	CppUnit_addTest(pSuite, ThreadTest, testAffinity);
+	CppUnit_addTest(pSuite, ThreadTest, testInterrupt);
 
 	return pSuite;
 }

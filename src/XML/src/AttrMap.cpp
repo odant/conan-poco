@@ -61,7 +61,7 @@ Node* AttrMap::removeNamedItem(const XMLString& name)
 	if (pAttr)
 		return _pElement->removeAttributeNode(pAttr);
 	else
-		return 0;
+		return nullptr;
 }
 
 
@@ -109,13 +109,15 @@ Node* AttrMap::removeNamedItemNS(const XMLString& namespaceURI, const XMLString&
 	if (pAttr)
 		return _pElement->removeAttributeNode(pAttr);
 	else
-		return 0;
+		return nullptr;
 }
 
 
 void AttrMap::autoRelease()
 {
-	_pElement->ownerDocument()->autoReleasePool().add(this);
+	auto* pOwner = _pElement->ownerDocument();
+	if (pOwner != nullptr)
+		pOwner->autoReleasePool().add(this);
 }
 
 

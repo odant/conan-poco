@@ -7,7 +7,7 @@
 //
 // Definition of the BSONReader class.
 //
-// Copyright (c) 2012, Applied Informatics Software Engineering GmbH.
+// Copyright (c) 2012-2025, Applied Informatics Software Engineering GmbH.
 // and Contributors.
 //
 // SPDX-License-Identifier:	BSL-1.0
@@ -20,6 +20,7 @@
 
 #include "Poco/MongoDB/MongoDB.h"
 #include "Poco/BinaryReader.h"
+#include "Poco/Exception.h"
 
 
 namespace Poco {
@@ -49,7 +50,7 @@ public:
 		_reader >> t;
 	}
 
-	std::string readCString();
+	[[nodiscard]] std::string readCString();
 		/// Reads a cstring from the reader.
 		/// A cstring is a string terminated with a 0x00.
 
@@ -72,6 +73,8 @@ inline std::string BSONReader::readCString()
 		{
 			if (c == 0x00) return val;
 			else val += c;
+			if (val.size() > static_cast<std::size_t>(BSON_MAX_DOCUMENT_SIZE))
+				throw Poco::DataFormatException("BSON cstring exceeds maximum size");
 		}
 	}
 	return val;

@@ -7,7 +7,7 @@
 //
 // Definition of the OptionProcessor class.
 //
-// Copyright (c) 2004-2006, Applied Informatics Software Engineering GmbH.
+// Copyright (c) 2004-2025, Applied Informatics Software Engineering GmbH.
 // and Contributors.
 //
 // SPDX-License-Identifier:	BSL-1.0
@@ -78,7 +78,7 @@ public:
 	~OptionProcessor();
 		/// Destroys the OptionProcessor.
 
-	void setUnixStyle(bool flag);
+	void setUnixStyle(bool flag)
 		/// Enables (flag == true) or disables (flag == false) Unix-style
 		/// option processing.
 		///
@@ -89,9 +89,15 @@ public:
 		///
 		/// If Unix-style processing is disabled, options are expected to
 		/// begin with a slash ('/'), followed by a (partial) full option name.
+	{
+		_unixStyle = flag;
+	}
 
-	bool isUnixStyle() const;
+	bool isUnixStyle() const
 		/// Returns true iff Unix-style option processing is enabled.
+	{
+		return _unixStyle;
+	}
 
 	bool process(const std::string& argument, std::string& optionName, std::string& optionArg);
 		/// Examines and processes the given command line argument.
@@ -122,13 +128,6 @@ private:
 };
 
 
-//
-// inlines
-//
-inline bool OptionProcessor::isUnixStyle() const
-{
-	return _unixStyle;
-}
 
 
 } } // namespace Poco::Util

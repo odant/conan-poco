@@ -71,11 +71,27 @@ public:
 	~ECKeyImpl();
 		/// Destroys the ECKeyImpl.
 
+#if POCO_OPENSSL_VERSION_PREREQ(3, 0, 0)
+	EVP_PKEY* getEVPPKey();
+		/// Returns the OpenSSL EVP_PKEY object.
+
+	const EVP_PKEY* getEVPPKey() const;
+		/// Returns the OpenSSL EVP_PKEY object.
+#endif
+
+#ifndef OPENSSL_NO_DEPRECATED_3_0
+#if POCO_OPENSSL_VERSION_PREREQ(3, 0, 0)
+	POCO_DEPRECATED("use getEVPPKey() instead")
+#endif
 	EC_KEY* getECKey();
 		/// Returns the OpenSSL EC key.
 
+#if POCO_OPENSSL_VERSION_PREREQ(3, 0, 0)
+	POCO_DEPRECATED("use getEVPPKey() instead")
+#endif
 	const EC_KEY* getECKey() const;
 		/// Returns the OpenSSL EC key.
+#endif
 
 	int size() const;
 		/// Returns the EC key length in bits.
@@ -95,7 +111,7 @@ public:
 		/// is not exported.
 
 	void save(std::ostream* pPublicKeyStream,
-		std::ostream* pPrivateKeyStream = 0,
+		std::ostream* pPrivateKeyStream = nullptr,
 		const std::string& privateKeyPassphrase = "") const;
 		/// Exports the public and private key to the given streams.
 		///
@@ -125,13 +141,58 @@ private:
 	void checkEC(const std::string& method, const std::string& func) const;
 	void freeEC();
 
+#if POCO_OPENSSL_VERSION_PREREQ(3, 0, 0)
+	void safeCheckEC(const std::string& method, const std::string& func);
+		/// Calls checkEC(); frees _pEVPPKey and rethrows on failure.
+		/// Use in constructors where destructor will not run.
+	EVP_PKEY* _pEVPPKey;
+#else
 	EC_KEY* _pEC;
+#endif
 };
 
 
 //
 // inlines
 //
+
+#if POCO_OPENSSL_VERSION_PREREQ(3, 0, 0)
+
+inline EVP_PKEY* ECKeyImpl::getEVPPKey()
+{
+	return _pEVPPKey;
+}
+
+
+inline const EVP_PKEY* ECKeyImpl::getEVPPKey() const
+{
+	return _pEVPPKey;
+}
+
+
+inline std::string ECKeyImpl::groupName() const
+{
+	return OBJ_nid2sn(groupId());
+}
+
+
+inline void ECKeyImpl::save(const std::string& publicKeyFile,
+	const std::string& privateKeyFile,
+	const std::string& privateKeyPassphrase) const
+{
+	EVPPKey(_pEVPPKey).save(publicKeyFile, privateKeyFile, privateKeyPassphrase);
+}
+
+
+inline void ECKeyImpl::save(std::ostream* pPublicKeyStream,
+	std::ostream* pPrivateKeyStream,
+	const std::string& privateKeyPassphrase) const
+{
+	EVPPKey(_pEVPPKey).save(pPublicKeyStream, pPrivateKeyStream, privateKeyPassphrase);
+}
+
+#else // !POCO_OPENSSL_VERSION_PREREQ(3, 0, 0)
+
 inline EC_KEY* ECKeyImpl::getECKey()
 {
 	return _pEC;
@@ -164,6 +225,8 @@ inline void ECKeyImpl::save(std::ostream* pPublicKeyStream,
 {
 	EVPPKey(_pEC).save(pPublicKeyStream, pPrivateKeyStream, privateKeyPassphrase);
 }
+
+#endif // POCO_OPENSSL_VERSION_PREREQ(3, 0, 0)
 
 
 } } // namespace Poco::Crypto
