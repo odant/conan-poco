@@ -9,7 +9,7 @@ import os, re
 
 class PocoConan(ConanFile):
     name = "poco"
-    version = "1.14.2+0"
+    version = "1.15.3+0"
     license = "Boost Software License Version 1.0. https://pocoproject.org/license.html"
     description = "Modern, powerful open source C++ class libraries for building network- and internet-based applications that run on desktop, server, mobile and embedded systems."
     url = "https://github.com/odant/conan-poco"
@@ -59,6 +59,7 @@ class PocoConan(ConanFile):
         # Disable install compiler runtime
         tools.files.replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"), "include(InstallRequiredSystemLibraries)", "")
         tools.files.replace_in_file(self, os.path.join(self.source_folder, "Foundation", "CMakeLists.txt"), "Pcre2::Pcre2", "PCRE2::PCRE2")
+        tools.files.replace_in_file(self, os.path.join(self.source_folder, "dependencies", "pcre2", "CMakeLists.txt"), "Pcre2::Pcre2", "PCRE2::PCRE2")
         
     def generate(self):
         benv = tools.env.VirtualBuildEnv(self)
